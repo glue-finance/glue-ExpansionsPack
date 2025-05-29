@@ -37,22 +37,7 @@ Build applications that leverage **flash loans** from the Glue Protocol with aut
 - ✅ **Automatic protocol handling** - Fees, hooks, and edge cases handled automatically  
 - ✅ **Plug-and-play design** - Import, inherit, and customize for your needs
 - ✅ **Comprehensive documentation** - Examples and guides for every use case
-- ✅ **Future-proof** - Automatically compatible with Glue Protocol updates
 
-**Example: Create a Yield Token in 10 Lines:**
-```solidity
-import "@glueExpansionsPack/base/StickyAsset.sol";
-
-contract MyYieldToken is ERC20, StickyAsset {
-    constructor() 
-        ERC20("Yield Token", "YIELD")
-        StickyAsset("https://metadata.json", [true, true]) // ERC20 with hooks
-    {
-        _mint(msg.sender, 1000000 * 10**18);
-    }
-    
-    // Your yield logic automatically benefits from Glue Protocol backing!
-}'''
 
 ## Overview
 
