@@ -759,99 +759,33 @@ For detailed documentation and advanced usage examples, visit the [Glue Protocol
 
 ## License
 
-Glue Protocol Expansions Pack is licensed under the [Business Source License 1.1](https://github.com/glue-finance/glue/blob/main/LICENCE.txt). With an end date of 2029-02-29 or a date specified at [v1-license-date.gluefinance.eth](https://v1-license-date.gluefinance.eth).
+Most components of the Glue Protocol Expansions Pack are available under permissive open-source licenses. However, **StickyAsset.sol** is licensed under the [Business Source License 1.1](https://github.com/glue-finance/glue/blob/main/LICENCE.txt) with an end date of 2029-02-29 or a date specified at [v1-license-date.gluefinance.eth](https://v1-license-date.gluefinance.eth).
 
-### ⚠️ StickyAsset Specific License Terms (BUSL-1.1)
+### StickyAsset License Terms (BUSL-1.1)
 
-**StickyAsset.sol** is the core contract implementing the Sticky Asset Native Standard and is subject to strict licensing terms under BUSL-1.1. This contract MUST maintain integration with the official Glue Protocol deployment.
+**StickyAsset.sol** can be **used and integrated freely** as long as it maintains operation with the official Glue Protocol addresses. This means you can:
 
-#### ✅ **StickyAsset - What You CAN Do:**
+✅ **Use StickyAsset freely** in your projects  
+✅ **Integrate with confidence** knowing it operates with official protocol addresses  
+✅ **Build and deploy** tokens that inherit from StickyAsset  
+✅ **Earn money** from your StickyAsset-based projects  
 
-- **Inherit from StickyAsset** for your tokens while maintaining official glue stick addresses:
-  ```solidity
-  contract MyToken is ERC20, StickyAsset {
-      // ✅ This is permitted - inherits and uses official addresses
-  }
-  ```
+The only requirement is that StickyAsset **must maintain integration** with the official Glue_Stick addresses.
 
-- **Deploy tokens using StickyAsset** that integrate with the official Glue Protocol
-- **Customize hook functions** (`_calculateStickyHookSize`, `_processCollateralHook`, etc.) for your specific use case
-- **Create factory contracts** that deploy StickyAsset-based tokens with official addresses
-- **Earn money** from tokens that inherit from StickyAsset while following license terms
-- **Build interfaces and tools** that interact with StickyAsset-based tokens
-- **Use StickyAsset** on all officially supported networks
+### General Protocol License Terms
 
-#### ❌ **StickyAsset - What You CANNOT Do:**
+The protocol is permissionless - you can build on top of it for both public good and profit. However, you cannot fork and deploy your own version of the core protocol.
 
-- **Deploy StickyAsset with custom glue stick addresses** on mainnet or production networks:
-  ```solidity
-  // ❌ This violates the license
-  contract MyToken is StickyAsset {
-      constructor() StickyAsset(
-          "ipfs://metadata",
-          [true, false],
-          myCustomGlueStick20,    // ❌ LICENSE VIOLATION
-          myCustomGlueStick721    // ❌ LICENSE VIOLATION  
-      ) {}
-  }
-  ```
+### Required Official Addresses
 
-- **Modify or replace** the official GLUE_STICK_ERC20 and GLUE_STICK_ERC721 addresses
-- **Deploy your own version** of the Glue Protocol with different addresses
-- **Create StickyAsset variants** that bypass the official Glue deployment
-- **Deploy StickyAsset** on unsupported networks
-- **Fork the entire Glue Protocol** and deploy it independently
-
-#### 🧪 **MockStickyAsset for Testing (MIT License)**
-
-For testing purposes, we provide **MockStickyAsset.sol** which allows configurable glue stick addresses:
-
-```solidity
-// ✅ Testing only - MockStickyAsset allows custom addresses
-import "@glueExpansionsPack/mocks/MockStickyAsset.sol";
-
-contract TestToken is MockStickyAsset {
-    constructor() MockStickyAsset(
-        "ipfs://test-metadata",
-        [true, false],
-        mockGlueStick20Address,   // ✅ OK for testing
-        mockGlueStick721Address   // ✅ OK for testing
-    ) {}
-}
-```
-
-**⚠️ CRITICAL WARNING**: MockStickyAsset is ONLY for testing. Deploying MockStickyAsset on mainnet or any production network **VIOLATES THE GLUE PROTOCOL LICENSE**.
-
-#### 🎯 **Required Official Addresses**
-
-When inheriting from StickyAsset, your contract MUST interact with these official addresses:
+When using StickyAsset, your contract must interact with these official addresses:
 
 - **GLUE_STICK_ERC20**: `0x49fc990E2E293D5DeB1BC0902f680A3b526a6C60`
 - **GLUE_STICK_ERC721**: `0x049A5F502Fd740E004526fb74ef66b7a6615976B`
 
-Any attempts to bypass, modify, or replace these addresses in production deployments violates the license.
+### Other Components
 
-### General Protocol License Terms
-
-The protocol is permissionless, you can both use it and build on top of it, both as a form of public good or for profit. But you can't fork it and deploy it on your own.
-
-**StickyToken** is referred to the entire invention and logic of the protocol, including the deployed contracts, the interfaces, the libraries, the extensions and the documentation. Glue Labs Inc. (Delaware) is the exclusive owner of all intellectual property rights, copyrights, and licensing rights for Glue V1 and its software components, while Glue Labs LTD (BVI) is responsible for the development of smart contracts, their deployment, on-chain royalty enforcement mechanisms, and all future protocol development on the blockchain.
-
-### License Summary for Developers
-
-| Component | License | Production Use | Custom Addresses | Notes |
-|-----------|---------|----------------|------------------|-------|
-| **StickyAsset.sol** | BUSL-1.1 | ✅ Permitted | ❌ Forbidden | Must use official glue stick addresses |
-| **MockStickyAsset.sol** | MIT | ❌ Forbidden | ✅ Testing only | License violation if deployed on mainnet |
-| **GluedLoanReceiver.sol** | BUSL-1.1 | ✅ Permitted | Uses StickyAsset addresses | Same restrictions as StickyAsset |
-| **MockGluedLoanReceiver.sol** | MIT | ✅ Permitted | ✅ Testing only | Safe for mainnet, no protocol addresses |
-| **Interfaces** | MIT | ✅ Permitted | N/A | No restrictions |
-| **Libraries** | MIT | ✅ Permitted | N/A | No restrictions |
-| **Examples** | MIT | ✅ Permitted | N/A | No restrictions |
-
-For complete licensing details, permitted uses, restrictions, enforcement rights, license transition timeline, and collaboration opportunities, please visit [glue.finance/legal#licence](https://glue.finance/legal#licence).
-
-Have a brilliant idea that pushes beyond our license boundaries? Go to [License and Partnerships](http://glue.finance/legal#license) to explore collaboration opportunities.
+All other components (interfaces, libraries, examples, mocks) are available under permissive open-source licenses.
 
 ## Security
 
