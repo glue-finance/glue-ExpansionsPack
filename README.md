@@ -52,7 +52,7 @@ contract MyYieldToken is ERC20, StickyAsset {
     }
     
     // Your yield logic automatically benefits from Glue Protocol backing!
-}
+}'''
 
 ## Overview
 
