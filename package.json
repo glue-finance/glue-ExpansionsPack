@@ -1,0 +1,45 @@
+{
+  "name": "@glueExpansionsPack",
+  "version": "1.0.0",
+  "description": "Glue Protocol Expansions Pack - Smart contract interfaces and base contracts for building with the Glue Protocol",
+  "main": "index.js",
+  "files": [
+    "contracts/**/*.sol",
+    "index.js",
+    "README.md"
+  ],
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "solidity",
+    "ethereum", 
+    "smart-contracts",
+    "glue-protocol",
+    "defi",
+    "erc20",
+    "erc721",
+    "sticky-assets",
+    "hooks",
+    "flash-loans"
+  ],
+  "author": "Glue Protocol",
+  "license": "BUSL-1.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/glue-finance/glue-expansionspack.git"
+  },
+  "homepage": "https://github.com/glue-finance/glue-expansionspack#readme",
+  "bugs": {
+    "url": "https://github.com/glue-finance/glue-expansionspack/issues"
+  },
+  "peerDependencies": {
+    "@openzeppelin/contracts": "^5.2.0"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+} 
