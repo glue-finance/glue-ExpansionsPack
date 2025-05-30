@@ -277,12 +277,12 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver {
 
 /**
 --------------------------------------------------------------------------------------------------------
-▗▖ ▗▖ ▗▄▖  ▗▄▖ ▗▖ ▗▖
-▐▌ ▐▌▐▌ ▐▌▐▌ ▐▌▐▌▗▞▘
-▐▛▀▜▌▐▌ ▐▌▐▌ ▐▌▐▛▚▖ 
-▐▌ ▐▌▝▚▄▞▘▝▚▄▞▘▐▌ ▐▌
-01001000 01001111 
-01001111 01001011                               
+▗▄▄▄▖▗▄▖  ▗▄▖ ▗▖    ▗▄▄▖
+  █ ▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌   
+  █ ▐▌ ▐▌▐▌ ▐▌▐▌    ▝▀▚▖
+  █ ▝▚▄▞▘▝▚▄▞▘▐▙▄▄▖▗▄▄▞▘
+01010100 01101111 01101111 
+01101100 01110011
 */
 
     // █████╗ Override this function in derived contracts
@@ -305,6 +305,61 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver {
         // Derived contracts MUST override this function
         params; // Silence unused parameter warning
         return true;
+    }
+
+    /**
+    * @notice Performs a multiply-divide operation with full precision.
+    * @dev Calculates floor(a * b / denominator) with full precision, using 512-bit intermediate values.
+    * Throws if the result overflows a uint256 or if the denominator is zero.
+    *
+    * @param a The multiplicand.
+    * @param b The multiplier.
+    * @param denominator The divisor.
+    * @return result The result of the operation.
+    *
+    * Use case: When you need to calculate the result of a multiply-divide operation with full precision.
+    */
+    function _md512(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
+
+        // Return the result of the operation
+        return GluedMath.md512(a, b, denominator);
+    }
+
+    /**
+    * @notice Performs a multiply-divide operation with full precision and rounding up.
+    * @dev Calculates ceil(a * b / denominator) with full precision, using 512-bit intermediate values.
+    * Throws if the result overflows a uint256 or if the denominator is zero.
+    *
+    * @param a The multiplicand.
+    * @param b The multiplier.
+    * @param denominator The divisor.
+    * @return result The result of the operation, rounded up to the nearest integer.
+    *
+    * Use case: When you need to calculate the result of a multiply-divide operation with full precision and rounding up.
+    */
+    function _md512Up(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
+
+        // Return the result of the operation rounding up
+        return GluedMath.md512Up(a, b, denominator);
+    }
+
+    /**
+    * @notice Adjusts decimal places between different token decimals. With this function,
+    * you can get the right ammount of tokenOut from a given tokenIn address and amount
+    * espressed in tokenIn's decimals.
+    * @dev If one of the tokens is ETH, you can use the address(0) as the token address.
+    *
+    * @param amount The amount to adjust
+    * @param tokenIn The address of the input token
+    * @param tokenOut The address of the output token
+    * @return adjustedAmount The adjusted amount with correct decimal places
+    *
+    * Use case: When you need to adjust the decimal places operating with two different tokens
+    */
+    function _adjustDecimals(uint256 amount,address tokenIn,address tokenOut) internal view returns (uint256 adjustedAmount) {
+
+        // Return the adjusted amount
+        return GluedMath.adjustDecimals(amount, tokenIn, tokenOut);
     }
 
 /**
