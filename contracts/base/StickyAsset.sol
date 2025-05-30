@@ -601,6 +601,32 @@ abstract contract StickyAsset is IStickyAsset {
     }
 
     /**
+    * @notice Calculates the supply delta based on the sticky token amount and total supply.
+    * @dev This function is used to calculate the supply delta based on the sticky token amount and total supply.
+    *
+    * @param stickyAmount The amount of sticky tokens to calculate the supply delta for.
+    * @return supplyDelta The calculated supply delta.
+    * @dev This function accounts for the protocol fee in its calculations.
+    *
+    * Use cases:
+    * - Calculating the supply delta based on the sticky token amount.
+    * @dev This function can lose precision if the Sticky Token implements a Tax on transfers.
+    */
+    function getSupplyDelta(uint256 stickyAmount) public view override returns (uint256 supplyDelta) {
+        
+        // Use the known token type and glue address set in constructor
+        if (FUNGIBLE) {
+
+            // Call ERC20 getSupplyDelta
+            return IGlueERC20(GLUE).getSupplyDelta(stickyAmount);
+        } else {
+
+            // Call ERC721 getSupplyDelta
+            return IGlueERC721(GLUE).getSupplyDelta(stickyAmount);
+        }
+    }
+
+    /**
     * @notice Retrieves the balance of an array of specified collateral tokens for the glue contract.
     * @dev This function is used to get the balance of an array of specified collateral tokens for the glue contract.
     *

@@ -198,6 +198,20 @@ interface IStickyAsset is IGluedHooks {
     function getAdjustedTotalSupply() external view returns (uint256 adjustedTotalSupply);
 
     /**
+    * @notice Calculates the supply delta based on the sticky token amount and total supply.
+    * @dev This function is used to calculate the supply delta based on the sticky token amount and total supply.
+    *
+    * @param stickyAmount The amount of sticky tokens to calculate the supply delta for.
+    * @return supplyDelta The calculated supply delta.
+    * @dev This function accounts for the protocol fee in its calculations.
+    *
+    * Use cases:
+    * - Calculating the supply delta based on the sticky token amount.
+    * @dev This function can lose precision if the Sticky Token implements a Tax on transfers.
+    */
+    function getSupplyDelta(uint256 stickyAmount) external view returns (uint256 supplyDelta);
+
+    /**
     * @notice Retrieves the balance of an array of specified collateral tokens for the glue contract.
     * @dev This function is used to get the balance of an array of specified collateral tokens for the glue contract.
     *
