@@ -140,11 +140,15 @@ interface IStickyAsset is IGluedHooks {
     * @param amount For ERC20: amount of tokens, For ERC721: any number < tokenIds.length
     * @param tokenIds For ERC20: empty array [0], For ERC721: array of token IDs to redeem
     * @param recipient Address to receive the redeemed collateral
+    * @return supplyDelta Calculated proportion of total supply (in PRECISION units)
+    * @return realAmount Actual amount of tokens processed after transfer
+    * @return beforeTotalSupply Token supply before the unglue operation
+    * @return afterTotalSupply Token supply after the unglue operation
     *
     * Use cases:
     * - Unglue directly from the asset contract
     */
-    function unglue(address[] calldata collaterals,uint256 amount,uint256[] memory tokenIds,address recipient) external;
+    function unglue(address[] calldata collaterals,uint256 amount,uint256[] memory tokenIds,address recipient) external returns (uint256 supplyDelta, uint256 realAmount, uint256 beforeTotalSupply, uint256 afterTotalSupply);
 
     /**
     * @notice Executes a flashLoan from the glue through the Glue factory

@@ -194,11 +194,15 @@ abstract contract StickyAsset is IStickyAsset {
     * @param amount For ERC20: amount of tokens, For ERC721: any number < tokenIds.length
     * @param tokenIds For ERC20: empty array [0], For ERC721: array of token IDs to redeem
     * @param recipient Address to receive the redeemed collateral
+    * @return supplyDelta Calculated proportion of total supply (in PRECISION units)
+    * @return realAmount Actual amount of tokens processed after transfer
+    * @return beforeTotalSupply Token supply before the unglue operation
+    * @return afterTotalSupply Token supply after the unglue operation
     *
     * Use cases:
     * - Unglue directly from the asset contract
     */
-    function unglue(address[] calldata collaterals,uint256 amount,uint256[] memory tokenIds,address recipient) external override {
+    function unglue(address[] calldata collaterals,uint256 amount,uint256[] memory tokenIds,address recipient) external override returns (uint256 supplyDelta, uint256 realAmount, uint256 beforeTotalSupply, uint256 afterTotalSupply) {
 
         // Check if the token is an ERC20
         if (FUNGIBLE) {
@@ -220,8 +224,8 @@ abstract contract StickyAsset is IStickyAsset {
             revert TransferFailed();
         }
             
-            // Call ERC20 unglue with amount
-            IGlueERC20(GLUE).unglue(collaterals, amount, recipient);
+            // Call ERC20 unglue with amount and capture return values
+            (supplyDelta, realAmount, beforeTotalSupply, afterTotalSupply) = IGlueERC20(GLUE).unglue(collaterals, amount, recipient);
 
         // If the token is an ERC721
         } else {
@@ -247,9 +251,12 @@ abstract contract StickyAsset is IStickyAsset {
                 }
             }
             
-            // Call ERC721 unglue with tokenIds
-            IGlueERC721(GLUE).unglue(collaterals, tokenIds, recipient);
+            // Call ERC721 unglue with tokenIds and capture return values
+            (supplyDelta, realAmount, beforeTotalSupply, afterTotalSupply) = IGlueERC721(GLUE).unglue(collaterals, tokenIds, recipient);
         }
+        
+        // Return all the data from the underlying glue contract
+        return (supplyDelta, realAmount, beforeTotalSupply, afterTotalSupply);
     }
 
     /**
