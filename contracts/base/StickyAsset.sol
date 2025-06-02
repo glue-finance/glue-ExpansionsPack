@@ -202,7 +202,7 @@ abstract contract StickyAsset is IStickyAsset {
     * Use cases:
     * - Unglue directly from the asset contract
     */
-    function unglue(address[] calldata collaterals,uint256 amount,uint256[] memory tokenIds,address recipient) external override returns (uint256 supplyDelta, uint256 realAmount, uint256 beforeTotalSupply, uint256 afterTotalSupply) {
+    function unglue(address[] calldata collaterals,uint256 amount,uint256[] memory tokenIds,address recipient) public override returns (uint256 supplyDelta, uint256 realAmount, uint256 beforeTotalSupply, uint256 afterTotalSupply) {
 
         // Check if the token is an ERC20
         if (FUNGIBLE) {
@@ -272,7 +272,7 @@ abstract contract StickyAsset is IStickyAsset {
     * Use cases:
     * - Flash loan using the glued collaterals directly from the asset contract
     */
-    function flashLoan(address collateral,uint256 amount,address receiver,bytes calldata params) external override returns (bool success) {
+    function flashLoan(address collateral,uint256 amount,address receiver,bytes calldata params) public override returns (bool success) {
         
         // Create the glues array including this contract's glue
         address[] memory glues = new address[](1);
