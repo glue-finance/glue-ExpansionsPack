@@ -591,45 +591,6 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver {
         return IGlueERC20(glue).getFlashLoanFeeCalculated(amount);
     }
 
-    /**
-     * @notice Get comprehensive loan information for planning
-     * @dev Combines availability and fee information for complete loan planning
-     * @param glue Address of the glue contract
-     * @param collateral Address of the collateral token
-     * @param desiredAmount Amount you want to borrow
-     * @return available Maximum amount available for loan
-     * @return feePercentage Fee percentage
-     * @return calculatedFee Exact fee for desired amount
-     * @return totalRepayment Total amount to repay (desired + fee)
-     * @return canAfford True if the glue has enough liquidity for desired amount
-     *
-     * Use Cases:
-     * - Complete loan feasibility analysis
-     * - One-call loan planning
-     * - Strategy validation before execution
-     */
-    function getLoanPlan(
-        address glue,
-        address collateral,
-        uint256 desiredAmount
-    ) external view override returns (
-        uint256 available,
-        uint256 feePercentage,
-        uint256 calculatedFee,
-        uint256 totalRepayment,
-        bool canAfford
-    ) {
-        // Get available amount
-        available = this.maxLoan(glue, collateral);
-        
-        // Get fee information
-        feePercentage = this.getFlashLoanFee(glue);
-        calculatedFee = this.getFlashLoanFeeCalculated(glue, desiredAmount);
-        
-        // Calculate totals
-        totalRepayment = desiredAmount + calculatedFee;
-        canAfford = available >= desiredAmount;
-    }
 
 /**
 --------------------------------------------------------------------------------------------------------

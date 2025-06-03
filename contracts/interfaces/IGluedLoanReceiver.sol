@@ -241,34 +241,6 @@ interface IGluedLoanReceiver {
      */
     function getFlashLoanFeeCalculated(address glue, uint256 amount) external view returns (uint256 feeAmount);
 
-    /**
-     * @notice Get comprehensive loan information for planning
-     * @dev Optional helper combining availability and fee info in one call
-     * @param glue Address of the glue contract
-     * @param collateral Address of the collateral token
-     * @param desiredAmount Amount you want to borrow
-     * @return available Maximum amount available for loan
-     * @return feePercentage Fee percentage
-     * @return calculatedFee Exact fee for desired amount
-     * @return totalRepayment Total amount to repay (desired + fee)
-     * @return canAfford True if glue has enough liquidity
-     *
-     * Use Cases:
-     * - Complete loan feasibility analysis
-     * - One-call loan planning
-     * - Strategy validation before execution
-     */
-    function getLoanPlan(
-        address glue,
-        address collateral,
-        uint256 desiredAmount
-    ) external view returns (
-        uint256 available,
-        uint256 feePercentage,
-        uint256 calculatedFee,
-        uint256 totalRepayment,
-        bool canAfford
-    );
 
     // ═══════════════════════════════════════════════════════════════════════════════════════
     // EVENTS

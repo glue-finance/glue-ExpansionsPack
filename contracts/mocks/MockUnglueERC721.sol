@@ -555,6 +555,156 @@ contract MockUnglueERC721 is IGlueERC721 {
     // VIEW FUNCTIONS - IGlueERC721 INTERFACE COMPLIANCE
     // ═══════════════════════════════════════════════════════════════════════════════════════
 
+    /**
+     * @notice Preview the two-phase hook calculation for NFT ungluing
+     * @param tokenIds Array of token IDs to preview (checks for duplicates and burned status)
+     * @param collateral Specific collateral to check
+     * @return validNftCount Number of valid NFTs after removing duplicates and burned tokens
+     * @param stickyHookAmount Always 0 for NFTs (hooks don't reduce amounts, just track IDs)
+     * @param proportion Proportion of total supply (based on valid NFT count)
+     * @param userShare Raw collateral share before collateral hooks
+     * @param collateralHookAmount Amount taken by collateral hooks
+     * @param protocolFee Protocol fee amount
+     * @param finalAmount Final amount user receives
+     * 
+     * EXAMPLE:
+     * (validCount, stickyHook, proportion, userShare, collateralHook, protocolFee, finalAmount) = 
+     *   previewHookCalculation([1, 2, 3, 2], USDC);  // Token 2 is duplicate
+     * // Returns: validCount=3, stickyHook=0, proportion based on 3 NFTs, etc.
+     */
+    function previewHookCalculation(
+        uint256[] calldata tokenIds,
+        address collateral
+    ) external view returns (
+        uint256 validNftCount,
+        uint256 stickyHookAmount,
+        uint256 proportion,
+        uint256 userShare,
+        uint256 collateralHookAmount,
+        uint256 protocolFee,
+        uint256 finalAmount
+    ) {
+        if (mockTotalSupply == 0 || tokenIds.length == 0) return (0, 0, 0, 0, 0, 0, 0);
+        
+        // Count valid NFTs (remove duplicates and burned tokens)
+        validNftCount = _previewTokenIdValidation(tokenIds);
+        if (validNftCount == 0) return (0, 0, 0, 0, 0, 0, 0);
+        
+        // PHASE 1: Sticky asset hooks (always 0 for NFTs)
+        stickyHookAmount = 0; // NFT hooks don't reduce amounts, just track IDs
+        
+        // Calculate proportion based on valid NFT count
+        proportion = (validNftCount * PRECISION) / mockTotalSupply;
+        
+        // PHASE 2: Collateral distribution
+        uint256 available = availableCollateral[collateral];
+        if (available == 0) return (validNftCount, 0, proportion, 0, 0, 0, 0);
+        
+        // Calculate user share
+        userShare = (available * proportion) / PRECISION;
+        
+        // Apply protocol fee
+        protocolFee = (userShare * PROTOCOL_FEE) / PRECISION;
+        uint256 afterFee = userShare - protocolFee;
+        
+        // Apply collateral hooks if enabled
+        if (hooksEnabled && bio == 2) {
+            uint256 hookSize = mockHookSizes[collateral];
+            if (hookSize > PRECISION) hookSize = PRECISION;
+            collateralHookAmount = (userShare * hookSize) / PRECISION;
+            finalAmount = afterFee > collateralHookAmount ? afterFee - collateralHookAmount : 0;
+        } else {
+            collateralHookAmount = 0;
+            finalAmount = afterFee;
+        }
+    }
+
+    /**
+     * @notice Preview token ID validation without burning them
+     * @param tokenIds Array of token IDs to validate
+     * @return validCount Number of valid unique non-burned token IDs
+     */
+    function _previewTokenIdValidation(uint256[] calldata tokenIds) internal view returns (uint256 validCount) {
+        uint256[] memory seenTokenIds = new uint256[](tokenIds.length);
+        
+        for (uint256 i = 0; i < tokenIds.length; i++) {
+            uint256 tokenId = tokenIds[i];
+            
+            // Skip if already burned
+            if (burnedTokenIds[tokenId]) continue;
+            
+            // Check for duplicates in current batch
+            bool isDuplicate = false;
+            for (uint256 j = 0; j < validCount; j++) {
+                if (seenTokenIds[j] == tokenId) {
+                    isDuplicate = true;
+                    break;
+                }
+            }
+            
+            if (!isDuplicate) {
+                seenTokenIds[validCount] = tokenId;
+                validCount++;
+            }
+        }
+    }
+
+    /**
+     * @notice Preview hook calculation with NFT count instead of token IDs
+     * @param nftCount Number of NFTs to simulate burning
+     * @param collateral Specific collateral to check
+     * @return validNftCount Same as input (no validation needed)
+     * @return stickyHookAmount Always 0 for NFTs
+     * @return proportion Proportion of total supply
+     * @return userShare Raw collateral share
+     * @return collateralHookAmount Amount taken by collateral hooks
+     * @return protocolFee Protocol fee amount
+     * @return finalAmount Final amount user receives
+     * 
+     * EXAMPLE:
+     * (count, stickyHook, proportion, userShare, collateralHook, protocolFee, finalAmount) = 
+     *   previewHookCalculationByCount(5, USDC);  // Simulate burning 5 NFTs
+     */
+    function previewHookCalculationByCount(
+        uint256 nftCount,
+        address collateral
+    ) external view returns (
+        uint256 validNftCount,
+        uint256 stickyHookAmount,
+        uint256 proportion,
+        uint256 userShare,
+        uint256 collateralHookAmount,
+        uint256 protocolFee,
+        uint256 finalAmount
+    ) {
+        if (mockTotalSupply == 0 || nftCount == 0) return (0, 0, 0, 0, 0, 0, 0);
+        
+        validNftCount = nftCount;
+        stickyHookAmount = 0; // Always 0 for NFTs
+        
+        // Calculate proportion
+        proportion = (nftCount * PRECISION) / mockTotalSupply;
+        
+        // Calculate collateral amounts
+        uint256 available = availableCollateral[collateral];
+        if (available == 0) return (validNftCount, 0, proportion, 0, 0, 0, 0);
+        
+        userShare = (available * proportion) / PRECISION;
+        protocolFee = (userShare * PROTOCOL_FEE) / PRECISION;
+        uint256 afterFee = userShare - protocolFee;
+        
+        // Apply hooks if enabled
+        if (hooksEnabled && bio == 2) {
+            uint256 hookSize = mockHookSizes[collateral];
+            if (hookSize > PRECISION) hookSize = PRECISION;
+            collateralHookAmount = (userShare * hookSize) / PRECISION;
+            finalAmount = afterFee > collateralHookAmount ? afterFee - collateralHookAmount : 0;
+        } else {
+            collateralHookAmount = 0;
+            finalAmount = afterFee;
+        }
+    }
+
     function getSupplyDelta(uint256 stickyAmount) public view override returns (uint256) {
         if (mockTotalSupply == 0) return 0;
         return (stickyAmount * PRECISION) / mockTotalSupply;
