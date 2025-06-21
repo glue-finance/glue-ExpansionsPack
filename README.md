@@ -1,6 +1,6 @@
 # Glue Protocol Expansions Pack
 
-[![npm version](https://badge.fury.io/js/@glueExpansionsPack.svg)](https://badge.fury.io/js/@glueExpansionsPack)
+[![npm version](https://badge.fury.io/js/@glue-finance/expansions-pack.svg)](https://badge.fury.io/js/@glue-finance/expansions-pack)
 [![License: BUSL-1.1](https://img.shields.io/badge/License-BUSL--1.1-blue.svg)](https://github.com/glue-finance/glue-expansionspack/blob/main/LICENSE)
 
 **Expand the Glue Protocol with pre-built, battle-tested smart contracts designed for rapid development.**
@@ -52,7 +52,7 @@ The Glue Expansions Pack includes essential interfaces, base contracts, librarie
 ## Installation
 
 ```bash
-npm install @glueExpansionsPack
+npm install @glue-finance/expansions-pack
 ```
 
 ## Usage
@@ -67,7 +67,7 @@ Inherit from `StickyAsset` to transform any token into a sticky asset backed by 
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@glueExpansionsPack/base/StickyAsset.sol";
+import "@glue-finance/expansions-pack/base/StickyAsset.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract MyToken is ERC20, StickyAsset {
@@ -103,7 +103,7 @@ Inherit from `GluedLoanReceiver` to build applications that leverage instant liq
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@glueExpansionsPack/base/GluedLoanReceiver.sol";
+import "@glue-finance/expansions-pack/base/GluedLoanReceiver.sol";
 
 contract MyArbitrageBot is GluedLoanReceiver {
     
@@ -148,9 +148,9 @@ contract MyArbitrageBot is GluedLoanReceiver {
 Import standard interfaces for type-safe interactions with the Glue Protocol:
 
 ```solidity
-import "@glueExpansionsPack/interfaces/IGlueERC20.sol";
-import "@glueExpansionsPack/interfaces/IGlueERC721.sol";
-import "@glueExpansionsPack/interfaces/IStickyAsset.sol";
+import "@glue-finance/expansions-pack/interfaces/IGlueERC20.sol";
+import "@glue-finance/expansions-pack/interfaces/IGlueERC721.sol";
+import "@glue-finance/expansions-pack/interfaces/IStickyAsset.sol";
 
 contract MyDApp {
     function interactWithGlue(address glueContract, address collateral, uint256 amount) external {
@@ -165,7 +165,7 @@ contract MyDApp {
 Use the GluedMath library for accurate calculations:
 
 ```solidity
-import "@glueExpansionsPack/libraries/GluedMath.sol";
+import "@glue-finance/expansions-pack/libraries/GluedMath.sol";
 
 contract MyContract {
     using GluedMath for uint256;
@@ -190,7 +190,7 @@ The `GluedMath` library provides **ultra-precise mathematical operations** and *
 Performs multiplication and division with 512-bit intermediate precision to prevent overflow and maintain accuracy:
 
 ```solidity
-import "@glueExpansionsPack/libraries/GluedMath.sol";
+import "@glue-finance/expansions-pack/libraries/GluedMath.sol";
 
 contract PrecisionExample {
     using GluedMath for uint256;
@@ -249,7 +249,7 @@ The Expansions Pack includes **ready-to-deploy example contracts** for common us
 #### BasicStickyToken - Minimal Implementation
 
 ```solidity
-import "@glueExpansionsPack/examples/BasicStickyToken.sol";
+import "@glue-finance/expansions-pack/examples/BasicStickyToken.sol";
 
 // Deploy with minimal configuration
 contract MyToken is BasicStickyToken {
@@ -269,7 +269,7 @@ contract MyToken is BasicStickyToken {
 #### AdvancedStickyToken - Full-Featured Implementation
 
 ```solidity
-import "@glueExpansionsPack/examples/AdvancedStickyToken.sol";
+import "@glue-finance/expansions-pack/examples/AdvancedStickyToken.sol";
 
 // Deploy with full configuration including fees, governance, and limits
 contract MyAdvancedToken is AdvancedStickyToken {
@@ -307,7 +307,7 @@ contract MyAdvancedToken is AdvancedStickyToken {
 #### ExampleArbitrageBot - Complete MEV Bot
 
 ```solidity
-import "@glueExpansionsPack/examples/ExampleArbitrageBot.sol";
+import "@glue-finance/expansions-pack/examples/ExampleArbitrageBot.sol";
 
 // Deploy a complete arbitrage bot
 contract MyArbitrageBot is ExampleArbitrageBot {
@@ -336,7 +336,7 @@ contract MyArbitrageBot is ExampleArbitrageBot {
 
 #### Creating a Rebasing Token
 ```solidity
-import "@glueExpansionsPack/base/StickyAsset.sol";
+import "@glue-finance/expansions-pack/base/StickyAsset.sol";
 
 contract RebasingToken is ERC20, StickyAsset {
     constructor() 
@@ -358,7 +358,7 @@ contract RebasingToken is ERC20, StickyAsset {
 
 #### Treasury-Funded Token  
 ```solidity
-import "@glueExpansionsPack/base/StickyAsset.sol";
+import "@glue-finance/expansions-pack/base/StickyAsset.sol";
 
 contract TreasuryToken is ERC20, StickyAsset {
     address public treasury;
@@ -388,7 +388,7 @@ contract TreasuryToken is ERC20, StickyAsset {
 
 #### Simple Arbitrage Bot Implementation
 ```solidity
-import "@glueExpansionsPack/base/GluedLoanReceiver.sol";
+import "@glue-finance/expansions-pack/base/GluedLoanReceiver.sol";
 
 contract ArbitrageBot is GluedLoanReceiver {
     function _executeFlashLoanLogic(bytes memory params) internal override returns (bool success) {
@@ -489,7 +489,7 @@ The Glue Protocol has different interfaces for ERC20 tokens and ERC721 NFTs. We 
 
 ```solidity
 // Import and deploy
-import "@glueExpansionsPack/mocks/MockUnglueERC20.sol";
+import "@glue-finance/expansions-pack/mocks/MockUnglueERC20.sol";
 
 contract TestMyERC20Strategy {
     MockUnglueERC20 mockGlue;
@@ -541,7 +541,7 @@ contract TestMyERC20Strategy {
 
 ```solidity
 // Import and deploy
-import "@glueExpansionsPack/mocks/MockUnglueERC721.sol";
+import "@glue-finance/expansions-pack/mocks/MockUnglueERC721.sol";
 
 contract TestMyNFTStrategy {
     MockUnglueERC721 mockGlue;
@@ -607,7 +607,7 @@ contract TestMyNFTStrategy {
 
 ```solidity
 // Import and deploy
-import "@glueExpansionsPack/mocks/MockBatchUnglueERC20.sol";
+import "@glue-finance/expansions-pack/mocks/MockBatchUnglueERC20.sol";
 
 contract TestMyERC20BatchStrategy {
     MockBatchUnglueERC20 mockBatch;
@@ -664,7 +664,7 @@ contract TestMyERC20BatchStrategy {
 
 ```solidity
 // Import and deploy
-import "@glueExpansionsPack/mocks/MockBatchUnglueERC721.sol";
+import "@glue-finance/expansions-pack/mocks/MockBatchUnglueERC721.sol";
 
 contract TestMyNFTBatchStrategy {
     MockBatchUnglueERC721 mockBatch;
@@ -727,13 +727,13 @@ uint256 impact = mock.hooksImpact(USDC, 1000e6, 100e18); // Simulates hooksImpac
 
 ```solidity
 // Import specific mocks as needed
-import "@glueExpansionsPack/mocks/MockUnglueERC20.sol";
-import "@glueExpansionsPack/mocks/MockUnglueERC721.sol";
-import "@glueExpansionsPack/mocks/MockBatchUnglueERC20.sol";
-import "@glueExpansionsPack/mocks/MockBatchUnglueERC721.sol";
+import "@glue-finance/expansions-pack/mocks/MockUnglueERC20.sol";
+import "@glue-finance/expansions-pack/mocks/MockUnglueERC721.sol";
+import "@glue-finance/expansions-pack/mocks/MockBatchUnglueERC20.sol";
+import "@glue-finance/expansions-pack/mocks/MockBatchUnglueERC721.sol";
 
 // Or import via index (includes all contracts)
-import {MockUnglueERC20, MockUnglueERC721} from "@glueExpansionsPack";
+import {MockUnglueERC20, MockUnglueERC721} from "@glue-finance/expansions-pack";
 ```
 
 Each mock contract is **ultra-documented** with comprehensive examples, parameter explanations, and usage patterns. They're designed to make testing your Glue Protocol integrations as simple and reliable as possible, with **full interface compatibility** and **accurate protocol behavior including proper hook simulation**!

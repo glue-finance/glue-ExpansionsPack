@@ -1,5 +1,5 @@
 {
-  "name": "@glueExpansionsPack",
+  "name": "@glue-finance/expansions-pack",
   "version": "1.0.0",
   "description": "Glue Protocol Expansions Pack - Smart contract interfaces and base contracts for building with the Glue Protocol",
   "main": "index.js",
@@ -27,11 +27,11 @@
   "license": "BUSL-1.1",
   "repository": {
     "type": "git",
-    "url": "https://github.com/glue-finance/glue-expansionspack.git"
+    "url": "https://github.com/glue-finance/glue-expansionpack.git"
   },
-  "homepage": "https://github.com/glue-finance/glue-expansionspack#readme",
+  "homepage": "https://github.com/glue-finance/glue-expansionpack#readme",
   "bugs": {
-    "url": "https://github.com/glue-finance/glue-expansionspack/issues"
+    "url": "https://github.com/glue-finance/glue-expansionpack/issues"
   },
   "peerDependencies": {
     "@openzeppelin/contracts": "^5.2.0"
