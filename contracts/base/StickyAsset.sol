@@ -92,13 +92,13 @@ abstract contract StickyAsset is IStickyAsset {
      */
     
     /// @notice Address of the Glue contract for the token
-    address internal GLUE;
+    address internal immutable GLUE;
     
     /// @notice Flag indicating if the token is fungible
-    bool internal FUNGIBLE;
+    bool internal immutable FUNGIBLE;
 
     /// @notice Flag indicating if the token has hooks
-    bool internal HOOK;
+    bool internal immutable HOOK;
 
     /// @notice ERC-7572 compliant contract URI for metadata
     string internal _contractURI;
