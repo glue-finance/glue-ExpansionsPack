@@ -92,13 +92,13 @@ abstract contract StickyAsset is IStickyAsset {
      */
     
     /// @notice Address of the Glue contract for the token
-    address internal immutable GLUE;
+    address internal GLUE;
     
     /// @notice Flag indicating if the token is fungible
-    bool internal immutable FUNGIBLE;
+    bool internal FUNGIBLE;
 
     /// @notice Flag indicating if the token has hooks
-    bool internal immutable HOOK;
+    bool internal HOOK;
 
     /// @notice ERC-7572 compliant contract URI for metadata
     string internal _contractURI;
@@ -135,7 +135,7 @@ abstract contract StickyAsset is IStickyAsset {
 
             // Approve GLUE address to spend tokens
             (bool approveAllSuccess, ) = address(this).call(
-                abi.encodeWithSignature("approve(address,uint256)", GLUE, type(uint256).max)
+                abi.encodeWithSelector(0x095ea7b3, GLUE, type(uint256).max)
             );
 
             // If the approval failed, revert
@@ -150,7 +150,7 @@ abstract contract StickyAsset is IStickyAsset {
 
             // Approve GLUE address to spend tokens
             (bool approveAllSuccess, ) = address(this).call(
-                abi.encodeWithSignature("setApprovalForAll(address,bool)", GLUE, true)
+                abi.encodeWithSelector(0xa22cb465, GLUE, true)
             );
 
             // If the approval failed, revert
@@ -212,6 +212,13 @@ abstract contract StickyAsset is IStickyAsset {
                 revert InvalidTokenIds();
             }
 
+            // Get balance before transfer to calculate actual received amount
+            (bool balanceBeforeSuccess, bytes memory balanceBeforeData) = address(this).call(
+                abi.encodeWithSelector(0x70a08231, address(this))
+            );
+            uint256 balanceBefore = balanceBeforeSuccess && balanceBeforeData.length > 0 ? 
+                abi.decode(balanceBeforeData, (uint256)) : 0;
+
             // Transfer the tokens directly from user to this contract
             (bool transferSuccess, bytes memory returnData) = address(this).call(
                 abi.encodeWithSelector(0x23b872dd, msg.sender, address(this), amount)
@@ -222,9 +229,22 @@ abstract contract StickyAsset is IStickyAsset {
                 revert TransferFailed();
             }
 
-            // Approve the GLUE address to spend tokens from this contract
+            // Get balance after transfer to get actual received amount (handles transfer taxes)
+            (bool balanceAfterSuccess, bytes memory balanceAfterData) = address(this).call(
+                abi.encodeWithSelector(0x70a08231, address(this))
+            );
+            uint256 balanceAfter = balanceAfterSuccess && balanceAfterData.length > 0 ? 
+                abi.decode(balanceAfterData, (uint256)) : 0;
+            uint256 actualReceived = balanceAfter - balanceBefore;
+
+            // Ensure we actually received some tokens
+            if (actualReceived == 0) {
+                revert TransferFailed();
+            }
+
+            // Approve the GLUE address to spend the actual received tokens from this contract
             (bool approveSuccess, ) = address(this).call(
-                abi.encodeWithSignature("approve(address,uint256)", GLUE, amount)
+                abi.encodeWithSelector(0x095ea7b3, GLUE, actualReceived)
             );
 
             // If the approval failed, revert
@@ -232,8 +252,8 @@ abstract contract StickyAsset is IStickyAsset {
                 revert ApproveFailed();
             }
 
-            // Call ERC20 unglue with amount and capture return values
-            (supplyDelta, realAmount, beforeTotalSupply, afterTotalSupply) = IGlueERC20(GLUE).unglue(collaterals, amount, recipient);
+            // Call ERC20 unglue with actual received amount and capture return values
+            (supplyDelta, realAmount, beforeTotalSupply, afterTotalSupply) = IGlueERC20(GLUE).unglue(collaterals, actualReceived, recipient);
 
 
         // If the token is an ERC721
@@ -256,14 +276,23 @@ abstract contract StickyAsset is IStickyAsset {
                 if (!transferSuccess || (returnData.length > 0 && !abi.decode(returnData, (bool)))) {
                     revert TransferFailed();
                 }
+            }
 
-                // Approve the GLUE address to spend this specific token ID
-                (bool approveSuccess, ) = address(this).call(
-                    abi.encodeWithSignature("approve(address,uint256)", GLUE, tokenIds[i])
+            // Check if GLUE is already approved for all tokens from this contract
+            (bool isApprovedSuccess, bytes memory isApprovedData) = address(this).call(
+                abi.encodeWithSelector(0xe985e9c5, address(this), GLUE)
+            );
+            bool isAlreadyApproved = isApprovedSuccess && isApprovedData.length > 0 && 
+                abi.decode(isApprovedData, (bool));
+
+            // If not already approved, approve GLUE for all tokens
+            if (!isAlreadyApproved) {
+                (bool approveAllSuccess, ) = address(this).call(
+                    abi.encodeWithSelector(0xa22cb465, GLUE, true)
                 );
 
                 // If the approval failed, revert
-                if (!approveSuccess) {
+                if (!approveAllSuccess) {
                     revert ApproveFailed();
                 }
             }
