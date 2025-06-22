@@ -212,20 +212,29 @@ abstract contract StickyAsset is IStickyAsset {
                 revert InvalidTokenIds();
             }
 
-            // Transfer the tokens to the recipient
+            // Transfer the tokens directly from user to this contract
             (bool transferSuccess, bytes memory returnData) = address(this).call(
-
-                // Encode the transfer function call
                 abi.encodeWithSelector(0x23b872dd, msg.sender, address(this), amount)
             );
 
-        // Check the result more carefully
-        if (!transferSuccess || (returnData.length > 0 && !abi.decode(returnData, (bool)))) {
-            revert TransferFailed();
-        }
-            
+            // Check the result more carefully
+            if (!transferSuccess || (returnData.length > 0 && !abi.decode(returnData, (bool)))) {
+                revert TransferFailed();
+            }
+
+            // Approve the GLUE address to spend tokens from this contract
+            (bool approveSuccess, ) = address(this).call(
+                abi.encodeWithSignature("approve(address,uint256)", GLUE, amount)
+            );
+
+            // If the approval failed, revert
+            if (!approveSuccess) {
+                revert ApproveFailed();
+            }
+
             // Call ERC20 unglue with amount and capture return values
             (supplyDelta, realAmount, beforeTotalSupply, afterTotalSupply) = IGlueERC20(GLUE).unglue(collaterals, amount, recipient);
+
 
         // If the token is an ERC721
         } else {
@@ -235,19 +244,27 @@ abstract contract StickyAsset is IStickyAsset {
                 revert InvalidTokenIds();
             }
 
-            // For each token ID
+            // For each token ID, transfer from user to this contract
             for (uint256 i = 0; i < tokenIds.length; i++) {
 
-                // Transfer the token to the recipient
+                // Transfer the token from user to this contract
                 (bool transferSuccess, bytes memory returnData) = address(this).call(
-
-                    // Encode the transfer function call
                     abi.encodeWithSelector(0x23b872dd, msg.sender, address(this), tokenIds[i])
                 );
 
                 // Check the result more carefully - some ERC721 implementations return bool, others don't
                 if (!transferSuccess || (returnData.length > 0 && !abi.decode(returnData, (bool)))) {
                     revert TransferFailed();
+                }
+
+                // Approve the GLUE address to spend this specific token ID
+                (bool approveSuccess, ) = address(this).call(
+                    abi.encodeWithSignature("approve(address,uint256)", GLUE, tokenIds[i])
+                );
+
+                // If the approval failed, revert
+                if (!approveSuccess) {
+                    revert ApproveFailed();
                 }
             }
             
