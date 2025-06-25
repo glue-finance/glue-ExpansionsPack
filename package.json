@@ -1,8 +1,20 @@
 {
   "name": "@glue-finance/expansions-pack",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "Glue Protocol Expansions Pack - Smart contract interfaces and base contracts for building with the Glue Protocol",
   "main": "index.js",
+  "exports": {
+    "./base/StickyAsset.sol": "./contracts/base/StickyAsset.sol",
+    "./base/InitStickyAsset.sol": "./contracts/base/InitStickyAsset.sol",
+    "./base/GluedLoanReceiver.sol": "./contracts/base/GluedLoanReceiver.sol",
+    "./interfaces/IStickyAsset.sol": "./contracts/interfaces/IStickyAsset.sol",
+    "./interfaces/IInitStickyAsset.sol": "./contracts/interfaces/IInitStickyAsset.sol",
+    "./interfaces/IGlueERC20.sol": "./contracts/interfaces/IGlueERC20.sol",
+    "./interfaces/IGlueERC721.sol": "./contracts/interfaces/IGlueERC721.sol",
+    "./interfaces/IGluedHooks.sol": "./contracts/interfaces/IGluedHooks.sol",
+    "./interfaces/IGluedLoanReceiver.sol": "./contracts/interfaces/IGluedLoanReceiver.sol",
+    "./libraries/GluedMath.sol": "./contracts/libraries/GluedMath.sol"
+  },
   "files": [
     "contracts/**/*.sol",
     "index.js",
