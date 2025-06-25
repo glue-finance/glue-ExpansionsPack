@@ -40,12 +40,52 @@ interface IInitStickyAsset is IStickyAsset {
 
 /**
 --------------------------------------------------------------------------------------------------------
-▗▄▄▄▖▗▖  ▗▖▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖ ▗▄▖ ▗▖    ▗▄▄▄▖▗▄▄▄▖ ▗▄▖ ▗▖  ▗▖ ▗▄▄▖
-▐▌   ▐▛▚▖▐▌▐▌     █    █  ▐▌ ▐▌▐▌      █ ▐▌   ▐▌ ▐▌▐▛▚▖▐▌▐▌   
-▐▛▀▀▘▐▌ ▝▜▌▐▛▀▀▘  █    █  ▐▛▀▜▌▐▌      █ ▐▛▀▀▘▐▛▀▜▌▐▌ ▝▜▌ ▝▀▚▖
-▐▌   ▐▌  ▐▌▐▌   ▗▄█▄▖▗▄█▄▖▐▌ ▐▌▐▙▄▄▖   █ ▐▙▄▄▖▐▌ ▐▌▐▌  ▐▌▗▄▄▞▘
-01000110 01100001 01100011 01110100 
-01101111 01110010 01111001 
+ ▗▄▄▖▗▄▄▄▖▗▄▄▄▖▗▖ ▗▖▗▄▄▖ 
+▐▌   ▐▌     █  ▐▌ ▐▌▐▌ ▐▌
+ ▝▀▚▖▐▛▀▀▘  █  ▐▌ ▐▌▐▛▀▘ 
+▗▄▄▞▘▐▙▄▄▖  █  ▝▚▄▞▘▐▌                                               
+01010011 01100101 01110100 
+01110101 01110000 
+
+    /**
+     * @notice Initialize the sticky asset for factory deployment patterns
+     * @dev MUST be called after cloning/proxy deployment to create the Glue contract
+     * @dev Can only be called once per contract instance (when GLUE == address(0))
+     * @param initialContractURI The EIP-7572 compliant contract URI for metadata
+     * @param fungibleAndHook [FUNGIBLE, HOOK] configuration flags
+     *        [0] = FUNGIBLE (ERC20 = true) or non-fungible (ERC721 = false)
+     *        [1] = HOOK (true = hooks are enabled)
+     *
+     * Requirements:
+     * - Contract must not be already initialized (GLUE == address(0))
+     * - Must successfully create Glue contract via GlueStick
+     * - Must successfully approve Glue contract for token spending
+     * 
+     * Effects:
+     * - Sets FUNGIBLE and HOOK flags
+     * - Sets contract URI
+     * - Creates unique Glue contract for this instance
+     * - Approves Glue contract for token operations
+     * - Emits StickyAssetInitialized event
+     *
+     * Use cases:
+     * - Factory contracts initializing newly cloned sticky assets
+     * - Post-deployment setup for minimal proxy patterns
+     * - One-time configuration of cloned contract instances
+     */
+    function initializeStickyAsset(
+        string memory initialContractURI,
+        bool[2] memory fungibleAndHook
+    ) external;
+
+/**
+--------------------------------------------------------------------------------------------------------
+▗▄▄▖ ▗▄▄▄▖ ▗▄▖ ▗▄▄▄ 
+▐▌ ▐▌▐▌   ▐▌ ▐▌▐▌  █
+▐▛▀▚▖▐▛▀▀▘▐▛▀▜▌▐▌  █
+▐▌ ▐▌▐▙▄▄▖▐▌ ▐▌▐▙▄▄▀
+01010010 01100101 
+01100001 01100100                         
 */
 
     /**
@@ -62,12 +102,12 @@ interface IInitStickyAsset is IStickyAsset {
 
 /**
 --------------------------------------------------------------------------------------------------------
-▗▄▄▄▖▗▖  ▗▖▗▄▄▄▖▗▄▄▄▖▗▄▄▄▖ ▗▄▖ ▗▖    ▗▄▄▄▖▗▖  ▗▖▗▄▄▄▖▗▄▖  
-▐▌   ▐▛▚▖▐▌▐▌     █    █  ▐▌ ▐▌▐▌    ▐▌   ▐▌  ▐▌▐▌   ▐▌ ▐▌
-▐▛▀▀▘▐▌ ▝▜▌▐▛▀▀▘  █    █  ▐▛▀▜▌▐▌    ▐▛▀▀▘▐▌  ▐▌▐▛▀▀▘▐▛▀▚▖
-▐▌   ▐▌  ▐▌▐▌   ▗▄█▄▖▗▄█▄▖▐▌ ▐▌▐▙▄▄▖ ▐▙▄▄▖ ▝▚▞▘ ▐▙▄▄▖▐▌ ▐▌
+▗▄▄▄▖▗▖  ▗▖▗▄▄▄▖▗▖  ▗▖▗▄▄▄▖▗▄▄▖
+▐▌   ▐▌  ▐▌▐▌   ▐▛▚▖▐▌  █ ▐▌   
+▐▛▀▀▘▐▌  ▐▌▐▛▀▀▘▐▌ ▝▜▌  █  ▝▀▚▖
+▐▙▄▄▖ ▝▚▞▘ ▐▙▄▄▖▐▌  ▐▌  █ ▗▄▄▞▘
 01000101 01110110 01100101 
-01101110 01110100 01110011 
+01101110 01110100 01110011
 */
 
     /**

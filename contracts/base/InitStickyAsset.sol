@@ -131,7 +131,7 @@ abstract contract InitStickyAsset is IInitStickyAsset {
     function initializeStickyAsset(
         string memory initialContractURI,
         bool[2] memory fungibleAndHook
-    ) internal {
+    ) external override {
         
         // Ensure this is only called once per contract
         if (GLUE != address(0)) revert AlreadyInitialized();
