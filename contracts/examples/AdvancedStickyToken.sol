@@ -453,6 +453,7 @@ contract AdvancedStickyToken is ERC20, ERC20Burnable, Ownable, StickyAsset {
     * 
     * @param amount The amount of sticky tokens to process as fees
     * @param tokenIds Not used for ERC20 tokens (included for ERC721 compatibility)
+    * @param recipient The address of the recipient of the unglue operation
     * 
     * Process Flow:
     * 1. Validate fee amount and receiver address
@@ -465,7 +466,7 @@ contract AdvancedStickyToken is ERC20, ERC20Burnable, Ownable, StickyAsset {
     * - Supporting DAO treasuries through token economics
     * - Balancing deflationary pressure with revenue generation
     */
-    function _processStickyHook(uint256 amount, uint256[] memory tokenIds) internal override {
+    function _processStickyHook(uint256 amount, uint256[] memory tokenIds, address recipient) internal override {
         // Process sticky token fees by transferring to fee receiver
         if (amount > 0 && fee_receiver != address(0)) {
             // Transfer the fee amount to the designated fee receiver
@@ -483,6 +484,7 @@ contract AdvancedStickyToken is ERC20, ERC20Burnable, Ownable, StickyAsset {
     * @param asset The address of the collateral token (address(0) for ETH)
     * @param amount The amount of collateral to transfer as fees
     * @param isETH Boolean flag indicating whether the collateral is native ETH
+    * @param recipient The address of the recipient of the unglue operation
     * 
     * Transfer Logic:
     * - ETH: Direct value transfer to fee receiver with error handling
@@ -495,7 +497,7 @@ contract AdvancedStickyToken is ERC20, ERC20Burnable, Ownable, StickyAsset {
     * - Implementing dynamic fee collection strategies
     * - Supporting multi-asset treasury management
     */
-    function _processCollateralHook(address asset, uint256 amount, bool isETH) internal override {
+    function _processCollateralHook(address asset, uint256 amount, bool isETH, address recipient) internal override {
         // Process collateral fees by transferring to fee receiver
         if (amount > 0 && fee_receiver != address(0)) {
             if (isETH) {

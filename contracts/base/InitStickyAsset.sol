@@ -82,11 +82,11 @@ abstract contract InitStickyAsset is IInitStickyAsset {
 
     /// @notice Address of the protocol-wide Glue Stick for ERC20s contract
     // ❌ EDITING THIS ADDRESS WILL BREAK THE LICENSE
-    IGlueStickERC20 internal constant GLUE_STICK_ERC20 = IGlueStickERC20(0x49fc990E2E293D5DeB1BC0902f680A3b526a6C60);
+    IGlueStickERC20 internal constant GLUE_STICK_ERC20 = IGlueStickERC20(0x0ddE8dda9f486a4EC5eece60a59248bD28144dFf);
 
     /// @notice Address of the protocol-wide Glue Stick for ERC721s contract
     // ❌ EDITING THIS ADDRESS WILL BREAK THE LICENSE
-    IGlueStickERC721 internal constant GLUE_STICK_ERC721 = IGlueStickERC721(0x049A5F502Fd740E004526fb74ef66b7a6615976B);
+    IGlueStickERC721 internal constant GLUE_STICK_ERC721 = IGlueStickERC721(0xe9B08D7dC8e44F1973269E7cE0fe98297668C257);
 
     /**
      * ⚠️  WARNING: EDITING THE GLUE STICK ADDRESSES WILL BREAK THE LICENSE ⚠️
@@ -407,8 +407,9 @@ abstract contract InitStickyAsset is IInitStickyAsset {
     * @param asset The address of the collateral token
     * @param amount The amount of tokens being processed by the hook
     * @param tokenIds The token IDs being processed (Only ERC721) always empty for ERC20
+    * @param recipient The address of the recipient of the unglue operation
     */
-    function executeHook(address asset, uint256 amount, uint256[] memory tokenIds) external override onlyGlue {
+    function executeHook(address asset, uint256 amount, uint256[] memory tokenIds, address recipient) external override onlyGlue {
 
         // Check if the token is the same as this contract
         if (asset == address(this)) {
@@ -416,7 +417,7 @@ abstract contract InitStickyAsset is IInitStickyAsset {
             // Call the internal implementation method with the adjusted amount
             // Glue already checked for the balance received, if the token has a tax you
             // receive the actual amount received and not the amount sent
-            _processStickyHook(amount, tokenIds);
+            _processStickyHook(amount, tokenIds, recipient);
 
         // If the token is not the same as this contract
         } else {
@@ -429,11 +430,11 @@ abstract contract InitStickyAsset is IInitStickyAsset {
             if (asset == ETH_ADDRESS) {
 
                 // Call the internal implementation method with the adjusted amount
-                _processCollateralHook(asset, amount, true);
+                _processCollateralHook(asset, amount, true, recipient);
             } else {
 
                 // Call the internal implementation method with the adjusted amount
-                _processCollateralHook(asset, amount, false);
+                _processCollateralHook(asset, amount, false, recipient);
             }
 
         }
@@ -491,8 +492,9 @@ abstract contract InitStickyAsset is IInitStickyAsset {
     * @dev Override this method in derived contracts to implement custom hook behavior
     * @param amount The amount of tokens being processed
     * @param tokenIds The token IDs being processed (Only ERC721) always empty for ERC20
+    * @param recipient The address of the recipient of the unglue operation
     */
-    function _processStickyHook(uint256 amount, uint256[] memory tokenIds) internal virtual {
+    function _processStickyHook(uint256 amount, uint256[] memory tokenIds, address recipient) internal virtual {
         // Default implementation does nothing
         // Derived contracts should override this
     }
@@ -503,8 +505,9 @@ abstract contract InitStickyAsset is IInitStickyAsset {
     * @param asset The address of the collateral token
     * @param amount The amount of tokens being processed
     * @param isETH Whether the token is ETH
+    * @param recipient The address of the recipient of the unglue operation
     */
-    function _processCollateralHook(address asset, uint256 amount, bool isETH) internal virtual {
+    function _processCollateralHook(address asset, uint256 amount, bool isETH, address recipient) internal virtual {
         // Default implementation does nothing
         // Derived contracts should override this
     }

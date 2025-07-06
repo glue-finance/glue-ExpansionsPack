@@ -68,10 +68,10 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver {
     address internal constant ETH_ADDRESS = address(0);
 
     /// @notice Address of the GlueStickERC20 factory contract for ERC20 flash loans
-    IGlueStickERC20 internal constant GLUE_STICK_ERC20 = IGlueStickERC20(0x49fc990E2E293D5DeB1BC0902f680A3b526a6C60);
+    IGlueStickERC20 internal constant GLUE_STICK_ERC20 = IGlueStickERC20(0x0ddE8dda9f486a4EC5eece60a59248bD28144dFf);
 
     /// @notice Address of the GlueStickERC721 factory contract for ERC721 flash loans
-    IGlueStickERC721 internal constant GLUE_STICK_ERC721 = IGlueStickERC721(0x049A5F502Fd740E004526fb74ef66b7a6615976B);
+    IGlueStickERC721 internal constant GLUE_STICK_ERC721 = IGlueStickERC721(0xe9B08D7dC8e44F1973269E7cE0fe98297668C257);
 
     // █████╗ Flash Loan State
     // ╚════╝ State variables to track current flash loan execution
