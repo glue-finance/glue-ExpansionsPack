@@ -146,7 +146,7 @@ abstract contract StickyAsset is IStickyAsset {
         } else {
 
             // Glue the ERC721 token
-            GLUE = IGlueStickERC721(GLUE_STICK_ERC721).applyTheGlue(address(this));
+            GLUE = IGlueStickERC721(GLUE_STICK_ERC721).computeGlueAddress(address(this));
 
             // Approve GLUE address to spend tokens
             (bool approveAllSuccess, ) = address(this).call(
