@@ -365,7 +365,7 @@ abstract contract StickyAsset is IStickyAsset {
     function executeHook(address asset, uint256 amount, uint256[] memory tokenIds, address recipient) external override onlyGlue {
 
         // Check if the token is the same as this contract
-        if (asset == address(this)) {
+        if (asset == GLUE || asset == address(this)) {
 
             // Call the internal implementation method with the adjusted amount
             // Glue already checked for the balance received, if the token has a tax you
