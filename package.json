@@ -1,6 +1,6 @@
 {
   "name": "@glue-finance/expansions-pack",
-  "version": "1.8.8",
+  "version": "1.8.9",
   "description": "Glue Protocol Expansions Pack - Smart contract interfaces and base contracts for building with the Glue Protocol",
   "main": "index.js",
   "exports": {
