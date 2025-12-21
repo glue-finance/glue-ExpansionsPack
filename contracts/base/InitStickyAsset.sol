@@ -202,6 +202,28 @@ abstract contract InitStickyAsset is IInitStickyAsset {
     }
 
     /**
+    * @notice Reentrancy guard using transient storage (EIP-1153)
+    * @dev Gas-efficient protection for functions with external calls
+    */
+    modifier nnrtnt() {
+        bytes32 slot = keccak256(abi.encodePacked(address(this), "ReentrancyGuard"));
+        
+        assembly {
+            if tload(slot) { 
+                mstore(0x00, 0x3ee5aeb5) // ReentrancyGuardReentrantCall()
+                revert(0x1c, 0x04)
+            }
+            tstore(slot, 1)
+        }
+        
+        _;
+        
+        assembly {
+            tstore(slot, 0)
+        }
+    }
+
+    /**
     * @notice Modifier to check if the caller is the GLUE contract
     * @dev Only the GLUE contract can call the functions that use this modifier
     *
