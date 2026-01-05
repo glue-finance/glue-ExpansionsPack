@@ -765,7 +765,7 @@ The protocol is permissionless - you can build on top of it for both public good
 
 When using StickyAsset, your contract must interact with these official addresses:
 
-- **GLUE_STICK_ERC20**: `0x0ddE8dda9f486a4EC5eece60a59248bD28144dFf`
+- **GLUE_STICK_ERC20**: `0x5fEe29873DE41bb6bCAbC1E4FB0Fc4CB26a7Fd74`
 - **GLUE_STICK_ERC721**: `0xe9B08D7dC8e44F1973269E7cE0fe98297668C257`
 
 ### Other Components

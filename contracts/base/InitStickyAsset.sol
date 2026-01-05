@@ -82,7 +82,7 @@ abstract contract InitStickyAsset is IInitStickyAsset {
 
     /// @notice Address of the protocol-wide Glue Stick for ERC20s contract
     // ❌ EDITING THIS ADDRESS WILL BREAK THE LICENSE
-    IGlueStickERC20 internal constant GLUE_STICK_ERC20 = IGlueStickERC20(0x0ddE8dda9f486a4EC5eece60a59248bD28144dFf);
+    IGlueStickERC20 internal constant GLUE_STICK_ERC20 = IGlueStickERC20(0x5fEe29873DE41bb6bCAbC1E4FB0Fc4CB26a7Fd74);
 
     /// @notice Address of the protocol-wide Glue Stick for ERC721s contract
     // ❌ EDITING THIS ADDRESS WILL BREAK THE LICENSE
