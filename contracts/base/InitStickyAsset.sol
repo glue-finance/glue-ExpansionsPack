@@ -38,8 +38,10 @@
 pragma solidity ^0.8.28;
 
 /**
-@dev Interface for InitStickyAsset
+@dev Interfaces for Glue Protocol
 */
+import {IGlueStickERC20, IGlueERC20} from "../interfaces/IGlueERC20.sol";
+import {IGlueStickERC721, IGlueERC721} from '../interfaces/IGlueERC721.sol';
 import {IInitStickyAsset} from '../interfaces/IInitStickyAsset.sol';
 
 /**
@@ -50,7 +52,7 @@ import {GluedMath} from '../libraries/GluedMath.sol';
 /**
 @dev Minimal Glue Protocol helper tools for advanced DeFi operations
 @dev Provides utility functions for transfers, balance tracking, and glue interactions
-@dev Also brings in GluedConstants (GLUE_STICK addresses, IGlueERC20/721 interfaces, PRECISION, ETH_ADDRESS, etc.)
+@dev Also brings in GluedConstants (GLUE_STICK addresses, PRECISION, ETH_ADDRESS, etc.)
 */
 import {GluedToolsMin} from '../tools/GluedToolsMin.sol';
 

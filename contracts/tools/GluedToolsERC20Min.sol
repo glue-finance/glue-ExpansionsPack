@@ -77,6 +77,7 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
+import {IGlueStickERC20, IGlueERC20} from "../interfaces/IGlueERC20.sol";
 import {GluedConstants} from "../libraries/GluedConstants.sol";
 
 abstract contract GluedToolsERC20Min is GluedConstants {

@@ -3,782 +3,547 @@
 [![npm version](https://badge.fury.io/js/@glue-finance/expansions-pack.svg)](https://badge.fury.io/js/@glue-finance/expansions-pack)
 [![License: BUSL-1.1](https://img.shields.io/badge/License-BUSL--1.1-blue.svg)](https://github.com/glue-finance/glue-expansionspack/blob/main/LICENSE)
 
-**Expand the Glue Protocol with pre-built, battle-tested smart contracts designed for rapid development.**
-
-## What is the Glue Expansions Pack?
-
-The Glue Expansions Pack provides **ready-to-use smart contract components** that allow developers to build on top of the Glue Protocol without needing to understand all the complex underlying interactions. Instead of implementing protocol-specific logic from scratch, builders can focus entirely on their unique business logic while leveraging the power of the Glue ecosystem.
-
-### 🎯 **Main Use Cases**
-
-The Expansions Pack is built around **two primary expansion patterns**:
-
-#### 1. **StickyAsset** - Create Your Own Sticky Tokens
-Transform any token (ERC20, ERC721, or custom) into a **sticky asset** backed by collateral from the Glue Protocol. Perfect for:
-- **Native Glue integration** with automatic protocol compatibility
-- **Hook implementations** for custom logic during ungluing operations
-- **Collateral-backed tokens** using Glue's native backing system
-- **Protocol fee handling** with automatic distribution mechanisms
-- **Multi-interface support** for both ERC20 and ERC721 sticky assets
-
-#### 2. **GluedLoanReceiver** - Access Instant Liquidity
-Build applications that leverage **flash loans** from the Glue Protocol with automatic repayment handling. Ideal for:
-- **Glue Protocol flash loans** with type-safe interface integration
-- **Automatic repayment handling** built into the base contract
-- **Cross-glue liquidity** aggregation for larger loan amounts
-- **Protocol-native fee calculations** with built-in fee handling
-- **Multi-glue support** for both ERC20 and ERC721 glue contracts
-
-### 💡 **Why Use the Expansions Pack?**
-
-**Focus on Your Innovation, Not Protocol Complexity:**
-- ✅ **Pre-built integrations** - No need to understand Glue's internal mechanics
-- ✅ **Battle-tested code** - Production-ready contracts with comprehensive testing
-- ✅ **Automatic protocol handling** - Fees, hooks, and edge cases handled automatically  
-- ✅ **Plug-and-play design** - Import, inherit, and customize for your needs
-- ✅ **Comprehensive documentation** - Examples and guides for every use case
-
-
-## Overview
-
-The Glue Expansions Pack includes essential interfaces, base contracts, libraries, and testing utilities for rapid Glue Protocol integration:
-
-- **Base Contracts**: `StickyAsset`, `GluedLoanReceiver` - Core building blocks for protocol expansion
-- **Interfaces**: `IGlueERC20`, `IGlueERC721`, `IStickyAsset`, `IGluedLoanReceiver` - Standard protocol interfaces  
-- **Libraries**: `GluedMath` - High-precision mathematical operations and decimal conversions
-- **Examples**: Ready-to-deploy implementations for common use cases
-- **Testing Mocks**: Comprehensive testing framework with accurate protocol simulation
-
-## Installation
+**Build on Glue Protocol with pre-built, battle-tested contracts. Focus on your innovation, not protocol complexity.**
 
 ```bash
 npm install @glue-finance/expansions-pack
 ```
 
-## Usage
+---
 
-Once installed, you can import and use the base contracts in your Solidity files. The two main expansion patterns are:
+## 🎯 What is This?
 
-### 1. Creating Sticky Assets with StickyAsset
+The Glue Expansions Pack provides **three core tools** for building with Glue Protocol:
 
-Inherit from `StickyAsset` to transform any token into a sticky asset backed by the Glue Protocol:
+### **1. Sticky Assets** - Create Tokens Native to Glue
+Build tokens that integrate natively with Glue Protocol. Automatic glue creation, collateral backing, and holder redemption.
 
 ```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.28;
-
 import "@glue-finance/expansions-pack/base/StickyAsset.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract MyToken is ERC20, StickyAsset {
     constructor() 
-        ERC20("My Sticky Token", "MST")
-        StickyAsset(
-            "https://example.com/metadata.json", // EIP-7572 contract URI
-            [true, false] // [FUNGIBLE: true (ERC20), HOOK: false (no hooks)]
-        ) 
+        ERC20("My Token", "MTK")
+        StickyAsset("https://metadata.json", [true, false])
     {
         _mint(msg.sender, 1000000 * 10**18);
-        // Your token now automatically integrates with Glue Protocol!
-    }
-    
-    // Optional: Override hook functions for custom behavior
-    function _calculateStickyHookSize(uint256 amount) internal view override returns (uint256) {
-        // Custom logic for sticky asset hooks
-        return 0; // No hooks by default
-    }
-    
-    function _processStickyHook(uint256 amount, uint256[] memory tokenIds) internal override {
-        // Custom logic when hooks are executed
-        // Example: burn tokens, distribute to treasury, etc.
     }
 }
 ```
 
-### 2. Building Flash Loan Applications with GluedLoanReceiver
+**Use StickyAsset when:** Creating tokens that should have native Glue integration (collateral backing, holder redemption)
 
-Inherit from `GluedLoanReceiver` to build applications that leverage instant liquidity:
+---
+
+### **2. GluedTools** - Build Smart Contracts That Interact with Glue
+Build routers, aggregators, or any contract that needs to interact with glued assets. Includes helpers for transfers, burns, math, and more.
 
 ```solidity
-// SPDX-License-Identifier: MIT
-pragma solidity ^0.8.28;
+import "@glue-finance/expansions-pack/base/GluedToolsERC20.sol";
 
+contract MyRouter is GluedToolsERC20 {
+    function swap(address token, uint256 amount) external {
+        address glue = _initializeGlue(token);
+        _transferFromAsset(token, msg.sender, address(this), amount);
+        // Use helper functions for safe operations
+    }
+}
+```
+
+**Use GluedTools when:** Building applications that interact with Glue Protocol  
+**Use GluedToolsERC20 when:** Only working with ERC20 tokens (smaller bytecode)
+
+---
+
+### **3. GluedLoanReceiver** - Build Flash Loan Applications
+Create flash loan bots, arbitrage strategies, or MEV applications with automatic repayment handling.
+
+```solidity
 import "@glue-finance/expansions-pack/base/GluedLoanReceiver.sol";
 
-contract MyArbitrageBot is GluedLoanReceiver {
-    
-    // Implement your core business logic here
-    function _executeFlashLoanLogic(bytes memory params) internal override returns (bool success) {
-        // Access loan information
-        uint256 totalBorrowed = this.getCurrentTotalBorrowed();
-        address collateral = this.getCurrentCollateral();
+contract ArbitrageBot is GluedLoanReceiver {
+    function _executeFlashLoanLogic(bytes memory params) internal override returns (bool) {
+        address token = getCurrentCollateral();
+        uint256 borrowed = getCurrentTotalBorrowed();
         
-        // Decode your custom parameters
-        (address targetDEX, uint256 minProfit) = abi.decode(params, (address, uint256));
+        // Your arbitrage strategy here
         
-        // Your arbitrage/MEV/liquidation logic here
-        uint256 profit = _executeYourStrategy(collateral, totalBorrowed, targetDEX);
-        
-        // Return true if successful (repayment is automatic)
-        return profit >= minProfit;
-    }
-    
-    function _executeYourStrategy(address token, uint256 amount, address dex) internal returns (uint256 profit) {
-        // Your custom strategy implementation
-        // Buy low, sell high, liquidate positions, etc.
-        return 0; // Return actual profit
-    }
-    
-    // Public function to initiate flash loans
-    function executeStrategy(
-        address stickyAsset,
-        address collateral,
-        uint256 amount,
-        address targetDEX,
-        uint256 minProfit
-    ) external {
-        bytes memory params = abi.encode(targetDEX, minProfit);
-        _requestFlashLoan(stickyAsset, collateral, amount, params);
+        return true; // Repayment is automatic!
     }
 }
 ```
 
-### 3. Using Protocol Interfaces
+**Use GluedLoanReceiver when:** Building flash loan applications (arbitrage, MEV, liquidations)
 
-Import standard interfaces for type-safe interactions with the Glue Protocol:
+---
+
+## 📦 Full Package Contents
+
+### **Creating Sticky Assets**
+| Contract | Purpose |
+|----------|---------|
+| `StickyAsset` | Standard sticky asset (constructor-based) |
+| `InitStickyAsset` | Proxy-friendly sticky asset (factory pattern) |
+
+### **Building on Glue**
+| Contract | Purpose | Size |
+|----------|---------|------|
+| `GluedToolsMin` | Minimal helpers (ERC20 + ERC721) | 296 lines |
+| `GluedToolsERC20Min` | Minimal helpers (ERC20 only) | 244 lines |
+| `GluedTools` | Full-featured (ERC20 + ERC721 + GluedMath) | 355 lines |
+| `GluedToolsERC20` | Full-featured (ERC20 only + GluedMath) | 279 lines |
+| `GluedLoanReceiver` | Flash loan receiver | 627 lines |
+
+### **Libraries**
+| Library | Purpose |
+|---------|---------|
+| `GluedConstants` | Protocol addresses & constants (single source of truth) |
+| `GluedMath` | High-precision math, decimal conversion |
+
+### **Interfaces**
+`IGlueERC20`, `IGlueERC721`, `IGlueStickERC20`, `IGlueStickERC721`, `IStickyAsset`, `IInitStickyAsset`, `IGluedHooks`, `IGluedLoanReceiver`
+
+### **Testing Mocks**
+`MockUnglueERC20`, `MockUnglueERC721`, `MockBatchUnglueERC20`, `MockBatchUnglueERC721`, `MockFlashLoan`, `MockGluedLoan`, `MockStickyAsset`, `MockGluedLoanReceiver`
+
+### **Examples**
+`BasicStickyToken`, `AdvancedStickyToken`, `ExampleArbitrageBot`
+
+---
+
+## 🛠️ Helper Functions You Get
+
+### **From GluedToolsMin** (All sticky assets and tools inherit these)
 
 ```solidity
-import "@glue-finance/expansions-pack/interfaces/IGlueERC20.sol";
-import "@glue-finance/expansions-pack/interfaces/IGlueERC721.sol";
-import "@glue-finance/expansions-pack/interfaces/IStickyAsset.sol";
+// Safe transfers (handles tax tokens, ETH, ERC20, ERC721)
+_transferAsset(token, to, amount, tokenIds, fungible);
+_transferFromAsset(token, from, to, amount, tokenIds, fungible) returns (actualReceived);
 
-contract MyDApp {
-    function interactWithGlue(address glueContract, address collateral, uint256 amount) external {
-        // Type-safe interaction with any Glue contract
-        IGlueERC20(glueContract).unglue([collateral], amount, msg.sender);
-    }
-}
+// Glue operations
+_initializeGlue(asset, fungible) returns (glue);
+_hasAGlue(asset, fungible) returns (bool);
+
+// Balances
+_balanceOfAsset(token, account, fungible) returns (balance);
+_getGlueBalances(asset, collaterals, fungible) returns (balances);
+_getTotalSupply(asset, fungible) returns (supply);
+
+// NFT helpers
+_getNFTOwner(nftContract, tokenId) returns (owner);
 ```
 
-### 4. High-Precision Math Operations
-
-Use the GluedMath library for accurate calculations:
+### **From GluedTools** (Advanced features + GluedMath)
 
 ```solidity
-import "@glue-finance/expansions-pack/libraries/GluedMath.sol";
+// Burns to glue
+_burnAsset(token, amount, fungible, tokenIds);
+_burnAssetFrom(token, from, amount, fungible, tokenIds);
 
-contract MyContract {
-    using GluedMath for uint256;
+// High-precision math (512-bit, prevents overflow)
+_md512(a, b, denominator) returns (result);
+_md512Up(a, b, denominator) returns (result); // rounds up
 
-    function calculatePreciseAmount(uint256 a, uint256 b, uint256 denominator) public pure returns (uint256) {
-        return GluedMath.md512(a, b, denominator);
-    }
-    
-    function adjustTokenDecimals(uint256 amount, address tokenIn, address tokenOut) public view returns (uint256) {
-        return GluedMath.adjustDecimals(amount, tokenIn, tokenOut);
-    }
-}
+// Decimal conversion (USDC ↔ WETH, any token ↔ any token)
+_adjustDecimals(amount, tokenIn, tokenOut) returns (adjusted);
+
+// Batch operations
+_batchTransferAsset(token, recipients, amounts, tokenIds, total, fungible);
+
+// Additional utilities
+_getTokenDecimals(token, fungible) returns (decimals);
+_handleExcess(token, amount, glue);
+_transferAssetChecked(token, to, amount, tokenIds, fungible) returns (actual);
 ```
 
-## GluedMath Library - High-Precision Calculations
+**Why use helpers?**
+- ✅ Handles tax tokens automatically
+- ✅ Safe for ETH, ERC20, and ERC721
+- ✅ Prevents overflow with 512-bit math
+- ✅ Automatic decimal adjustments
+- ✅ Battle-tested across all contracts
 
-The `GluedMath` library provides **ultra-precise mathematical operations** and **automatic decimal adjustments** essential for DeFi applications. It handles the complex math needed for cross-token calculations, fee computations, and proportion calculations.
+---
 
-### Key Functions
+## 🏗️ Architecture
 
-#### 1. **High-Precision Multiplication and Division (`md512`)**
-Performs multiplication and division with 512-bit intermediate precision to prevent overflow and maintain accuracy:
-
-```solidity
-import "@glue-finance/expansions-pack/libraries/GluedMath.sol";
-
-contract PrecisionExample {
-    using GluedMath for uint256;
-    
-    uint256 constant PRECISION = 1e18;
-    
-    function calculateFee(uint256 amount, uint256 feeRate) public pure returns (uint256) {
-        // Calculate 2.5% fee with perfect precision
-        // feeRate = 25e15 (2.5% in 1e18 precision)
-        return GluedMath.md512(amount, feeRate, PRECISION);
-    }
-    
-    function calculateProportion(uint256 userAmount, uint256 totalSupply, uint256 totalValue) public pure returns (uint256) {
-        // Calculate user's proportional share: (userAmount * totalValue) / totalSupply
-        return GluedMath.md512(userAmount, totalValue, totalSupply);
-    }
-}
+```
+GluedConstants (86 lines)
+  ├─ Protocol addresses (GLUE_STICK_ERC20, GLUE_STICK_ERC721)
+  ├─ Common constants (PRECISION, ETH_ADDRESS, DEAD_ADDRESS)
+  └─ Interface imports
+        ↓
+GluedToolsMin (296L) / GluedToolsERC20Min (244L)
+  ├─ Safe transfer functions
+  ├─ Glue initialization
+  └─ Balance helpers
+        ↓
+GluedTools (355L) / GluedToolsERC20 (279L)
+  ├─ All Min features
+  ├─ GluedMath integration
+  ├─ Burn functions
+  └─ Advanced operations
+        ↓
+Your Contract
+  └─ Inherits everything above
 ```
 
-#### 2. **Automatic Decimal Adjustment (`adjustDecimals`)**
-Automatically converts amounts between tokens with different decimal places:
+**Single source of truth. Zero duplication. Clean inheritance.**
+
+---
+
+## 🎯 Quick Guide
+
+### **I want to create a token backed by collateral**
+→ Use `StickyAsset` (standard) or `InitStickyAsset` (for factories)
 
 ```solidity
-contract DecimalExample {
-    using GluedMath for uint256;
-    
-    function convertTokenAmounts(uint256 amount, address fromToken, address toToken) public view returns (uint256) {
-        // Automatically handles USDC (6 decimals) ↔ WETH (18 decimals) conversions
-        return GluedMath.adjustDecimals(amount, fromToken, toToken);
-    }
-    
-    function convertUSDCToWETH(uint256 usdcAmount) public view returns (uint256) {
-        // Convert 1000 USDC (1000 * 1e6) to WETH decimals (1000 * 1e18)
-        address USDC = 0xA0b86a33E6417c4e2fDF5F3A4EB59b6A3DFEd3B5;
-        address WETH = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2;
-        return GluedMath.adjustDecimals(usdcAmount, USDC, WETH);
-    }
-}
-```
-
-The Expansions Pack helps you build on top of Glue Protocol without needing to be an expert in its internal mechanics. As a bonus, **GluedMath** simplifies common mathematical challenges when working with different token decimals and precision calculations.
-
-**Key Benefits:**
-- **Prevents Overflow**: 512-bit intermediate calculations prevent overflow in large multiplications
-- **Maintains Precision**: No rounding errors in critical financial calculations  
-- **Handles Decimals**: Automatic conversion between different token decimal formats
-- **Gas Optimized**: Efficient assembly implementation for production use
-- **Battle Tested**: Used throughout the Glue Protocol for all precision-critical operations
-
-## Examples
-
-The Expansions Pack includes **ready-to-deploy example contracts** for common use cases. These are complete implementations that you can deploy directly or use as starting points:
-
-### Ready-to-Deploy Sticky Tokens
-
-#### BasicStickyToken - Minimal Implementation
-
-```solidity
-import "@glue-finance/expansions-pack/examples/BasicStickyToken.sol";
-
-// Deploy with minimal configuration
-contract MyToken is BasicStickyToken {
-    constructor() BasicStickyToken(
-        [
-            "https://mytoken.com/metadata.json", // contractURI
-            "My Sticky Token",                   // name
-            "MST"                               // symbol
-        ],
-        1000000 * 10**18 // initial supply
-    ) {
-        // Ready to use! Your token is now backed by Glue Protocol
-    }
-}
-```
-
-#### AdvancedStickyToken - Full-Featured Implementation
-
-```solidity
-import "@glue-finance/expansions-pack/examples/AdvancedStickyToken.sol";
-
-// Deploy with full configuration including fees, governance, and limits
-contract MyAdvancedToken is AdvancedStickyToken {
-    constructor() AdvancedStickyToken(
-        [
-            "https://mytoken.com/metadata.json",
-            "Advanced Token", 
-            "ADV"
-        ],
-        [
-            5e16,  // maxOwnerFee (5%)
-            1e16,  // ownerFee (1%)
-            0,     // maxSupply (unlimited)
-            3,     // feeSource (FROM_BOTH)
-            1000000 * 10**18 // initialSupply
-        ],
-        [
-            msg.sender, // owner
-            msg.sender, // feeReceiver
-            address(0), // blacklist (none)
-            msg.sender  // collateralManager
-        ],
-        [
-            false, false, false, false, // locks for security
-            false, false, false, false
-        ]
-    ) {
-        // Full-featured token with governance, fees, and collateral management
-    }
-}
-```
-
-### Ready-to-Deploy Flash Loan Applications
-
-#### ExampleArbitrageBot - Complete MEV Bot
-
-```solidity
-import "@glue-finance/expansions-pack/examples/ExampleArbitrageBot.sol";
-
-// Deploy a complete arbitrage bot
-contract MyArbitrageBot is ExampleArbitrageBot {
-    constructor(address _owner) ExampleArbitrageBot(_owner) {
-        // Ready-to-use MEV bot with:
-        // - Multi-DEX arbitrage capabilities
-        // - Automatic profit calculation
-        // - Emergency controls and access management
-        // - Gas optimization and slippage protection
-    }
-    
-    // Start arbitraging immediately!
-    function startArbitrage(
-        address stickyAsset,
-        address collateral,
-        uint256 amount,
-        address dexA,
-        address dexB
-    ) external onlyOwner {
-        executeArbitrage(stickyAsset, collateral, amount, dexA, dexB);
-    }
-}
-```
-
-### Custom Strategy Examples
-
-#### Creating a Rebasing Token
-```solidity
-import "@glue-finance/expansions-pack/base/StickyAsset.sol";
-
-contract RebasingToken is ERC20, StickyAsset {
+contract MyToken is ERC20, StickyAsset {
     constructor() 
-        ERC20("Rebase Token", "REBASE")
-        StickyAsset("https://metadata.json", [true, true]) // Enable hooks
+        ERC20("My Token", "MTK")
+        StickyAsset("https://metadata.json", [true, false])
     {
         _mint(msg.sender, 1000000 * 10**18);
     }
-    
-    // Implement rebasing logic in hooks
-    function _processCollateralHook(address asset, uint256 amount, bool isETH) internal override {
-        // Automatically compound rewards into token supply
-        if (asset == rewardToken) {
-            _mint(address(this), amount); // Increase supply = rebasing!
-        }
+}
+```
+
+### **I want to build an app that interacts with Glue**
+→ Use `GluedTools` (supports ERC20 + ERC721) or `GluedToolsERC20` (ERC20 only, smaller)
+
+```solidity
+contract MyRouter is GluedToolsERC20 {
+    function myFunction() external {
+        // Access all helpers: _transferAsset, _burnAsset, _md512, etc.
     }
 }
 ```
 
-#### Treasury-Funded Token  
-```solidity
-import "@glue-finance/expansions-pack/base/StickyAsset.sol";
+### **I want to build a flash loan bot**
+→ Use `GluedLoanReceiver`
 
-contract TreasuryToken is ERC20, StickyAsset {
+```solidity
+contract Bot is GluedLoanReceiver {
+    function _executeFlashLoanLogic(bytes memory) internal override returns (bool) {
+        // Your strategy - repayment is automatic
+        return true;
+    }
+}
+```
+
+---
+
+## 💡 How Glue Works
+
+1. **Apply Glue** - `applyTheGlue(token)` creates a Glue contract for your token
+2. **Add Collateral** - Anyone sends ETH, USDC, or any ERC20 to the Glue
+3. **Holders Burn to Claim** - Burn tokens → receive `(burned / totalSupply) × collateral × (1 - 0.1% fee)`
+4. **Flash Loans Available** - Borrow from glue collateral, repay + 0.01% fee
+
+**Fully onchain. No oracles. Trustless. Permissionless.**
+
+---
+
+## 🌍 Deployed Networks
+
+| Network | Chain ID | Status |
+|---------|----------|--------|
+| Ethereum Mainnet | 1 | ✅ |
+| Base | 8453 | ✅ |
+| Optimism | 10 | ✅ |
+| Sepolia (testnet) | 11155111 | ✅ |
+| Base Sepolia | 84532 | ✅ |
+| Optimism Sepolia | 11155420 | ✅ |
+
+**Same addresses on all networks.**
+
+**Want another network?** [Join Discord](https://discord.gg/ZxqcBxC96w)
+
+---
+
+## 🔐 License & Protocol Addresses
+
+**BUSL-1.1 License** - Free to use with official addresses:
+- ✅ Build and deploy sticky assets
+- ✅ Create applications on Glue
+- ✅ Earn money from your integrations
+
+**You CANNOT:**
+- ❌ Modify these addresses in GluedConstants:
+  - `GLUE_STICK_ERC20`: `0x5fEe29873DE41bb6bCAbC1E4FB0Fc4CB26a7Fd74`
+  - `GLUE_STICK_ERC721`: `0xe9B08D7dC8e44F1973269E7cE0fe98297668C257`
+
+See [LICENSE](./LICENSE) for complete terms.
+
+---
+
+## 📖 Documentation
+
+- **[Protocol Wiki](https://wiki.glue.finance)** - Complete Glue Protocol documentation
+- **[V2 Update Guide](./doc/V2_UPDATE.md)** - What's new in v2.0 (for existing users)
+- **[vibecodersBible.txt](./doc/vibecodersBible.txt)** - AI context guide (paste in Claude/ChatGPT)
+- **[Solidity Docs](https://docs.soliditylang.org/en/v0.8.33/)** - Language reference
+
+---
+
+## 🎨 Examples
+
+### Revenue-Sharing Token (with hooks)
+```solidity
+contract RevenueToken is ERC20, StickyAsset {
     address public treasury;
     
     constructor(address _treasury) 
-        ERC20("Treasury Token", "TREAS")
-        StickyAsset("https://metadata.json", [true, true])
+        ERC20("Revenue", "REV")
+        StickyAsset("https://metadata.json", [true, true]) // Enable hooks
     {
         treasury = _treasury;
         _mint(msg.sender, 1000000 * 10**18);
     }
     
-    function _calculateCollateralHookSize(address asset, uint256 amount) internal view override returns (uint256) {
-        return _md512(amount, 10e16, PRECISION); // 10% to treasury
+    // 10% of withdrawn collateral goes to treasury
+    function _calculateCollateralHookSize(address, uint256 amount) internal pure override returns (uint256) {
+        return _md512(amount, 1e17, PRECISION); // 10%
     }
     
-    function _processCollateralHook(address asset, uint256 amount, bool isETH) internal override {
-        // Automatically fund treasury from ungluing operations
+    function _processCollateralHook(address asset, uint256 amount, bool isETH, address) internal override {
         if (isETH) {
             payable(treasury).transfer(amount);
         } else {
-            IERC20(asset).transfer(treasury, amount);
+            _transferAsset(asset, treasury, amount, new uint256[](0), true);
         }
     }
 }
 ```
 
-#### Simple Arbitrage Bot Implementation
+### Flash Loan Bot
 ```solidity
+contract MyBot is GluedLoanReceiver {
+    function executeArbitrage(address stickyAsset, address collateral, uint256 amount) external {
+        address[] memory glues = new address[](1);
+        glues[0] = _initializeGlue(stickyAsset);
+        _requestGluedLoan(true, glues, collateral, amount, "");
+    }
+    
+    function _executeFlashLoanLogic(bytes memory) internal override returns (bool) {
+        // Your strategy
+        return true;
+    }
+}
+```
+
+More examples in `contracts/examples/`
+
+---
+
+## 📚 Import Paths
+
+```solidity
+// Creating sticky assets
+import "@glue-finance/expansions-pack/base/StickyAsset.sol";
+import "@glue-finance/expansions-pack/base/InitStickyAsset.sol";
+
+// Building apps that interact with Glue (supports ERC20 + ERC721)
+import "@glue-finance/expansions-pack/base/GluedTools.sol";
+import "@glue-finance/expansions-pack/tools/GluedToolsMin.sol"; // Minimal version
+
+// Building apps (ERC20 only - better if you don't use NFTs)
+import "@glue-finance/expansions-pack/base/GluedToolsERC20.sol";
+import "@glue-finance/expansions-pack/tools/GluedToolsERC20Min.sol"; // Minimal version
+
+// Flash loans
 import "@glue-finance/expansions-pack/base/GluedLoanReceiver.sol";
 
-contract ArbitrageBot is GluedLoanReceiver {
-    function _executeFlashLoanLogic(bytes memory params) internal override returns (bool success) {
-        // Use enhanced interface for comprehensive loan information
-        (
-            address[] memory glues,
-            address collateral,
-            uint256[] memory expectedAmounts,
-            uint256 totalBorrowed,
-            uint256 totalRepay,
-            uint256 totalFees
-        ) = this.getCurrentLoanInfo();
-        
-        // Execute arbitrage strategy
-        uint256 profit = _performArbitrage(collateral, totalBorrowed);
-        
-        // Return true if profitable (repayment is automatic)
-        return profit > totalFees;
-    }
-    
-    function _performArbitrage(address token, uint256 amount) internal returns (uint256 profit) {
-        // Your arbitrage logic here
-        // Buy low on DEX A, sell high on DEX B
-        return 0; // Return actual profit
-    }
-}
+// Libraries
+import "@glue-finance/expansions-pack/libraries/GluedMath.sol";
+import "@glue-finance/expansions-pack/libraries/GluedConstants.sol";
+
+// Interfaces
+import "@glue-finance/expansions-pack/interfaces/IGlueERC20.sol";
+import "@glue-finance/expansions-pack/interfaces/IGlueERC721.sol";
 ```
 
-## 🧪 Mock Contracts for Testing
+---
 
-The Glue Expansions Pack includes **simple mock contracts** designed for testing your integrations without deploying the full Glue Protocol. Each mock focuses on **one specific function** with **manual parameter control** and **realistic protocol behavior**.
+## 💡 Key Concepts
 
-### Hook Simulation
+### **Sticky Asset**
+A token (ERC20 or ERC721) that has been "glued" - it has a Glue contract holding collateral. Token holders can burn tokens to receive proportional collateral.
 
-All mock contracts implement accurate hook behavior from the real Glue Protocol:
+### **Glue**
+A contract that holds collateral for a specific sticky asset. Created by calling `applyTheGlue(token)`.
 
-#### **For ERC20 Contracts (`MockUnglueERC20`, `MockBatchUnglueERC20`)**
-- **Phase 1 - Sticky Asset Hooks**: Applied via `tryHook(stickyAsset, amount)` during initialization
-  - Reduces the effective amount used for proportion calculation
-  - Hook amount is transferred to sticky asset (simulated)
-  - Matches `GlueERC20.initialization() -> tryHook()` flow exactly
-- **Phase 2 - Collateral Hooks**: Applied via `tryHook(collateral, netAmount)` during distribution
-  - Reduces the final amount received by user
-  - Hook amount is transferred to sticky asset (simulated)
-  - Matches `GlueERC20.computeCollateral() -> tryHook()` flow exactly
+### **Ungluing**
+Burning sticky tokens to withdraw collateral: `(tokens burned / total supply) × collateral × (1 - 0.1% fee)`
 
-#### **For ERC721 Contracts (`MockUnglueERC721`, `MockBatchUnglueERC721`)**
-- **Phase 1 - Sticky Asset Hooks (NFTs)**: Applied via `tryHook(stickyAsset, nftCount, tokenIds)`
-  - **Does NOT transfer** any amount to sticky asset (key difference!)
-  - **Still calls executeHook** with NFT count and actual tokenIds array
-  - **Returns 0** (no amount reduction)
-  - Used for **tracking burned NFT IDs** in expanded integrations
-- **Phase 2 - Collateral Hooks (ERC20/ETH)**: Applied via `tryHook(collateral, netAmount, tokenIds)`
-  - Same as ERC20 behavior - transfers hook amount to sticky asset
-  - Calls executeHook with hookAmount and tokenIds
-  - Returns `netAmount - hookAmount`
+### **Glued Loan**
+Flash loan from glue collateral. Borrow, execute strategy, auto-repay + 0.01% fee.
 
-#### **Real Protocol Matching Features**
-- ✅ **BIO State Management**: 0=UNCHECKED, 1=NO_HOOK, 2=HOOK (matches real protocol)
-- ✅ **Hook Interface Simulation**: `hasHook()`, `hookSize()`, `hooksImpact()`, `executeHook()`
-- ✅ **Proper Hook Discovery**: Simulates real protocol's hook detection process
-- ✅ **Accurate Transfers**: Hook amounts actually transferred to sticky asset (simulated)
-- ✅ **NFT ID Tracking**: Full tokenIds array passed to executeHook for NFT hooks
-- ✅ **Fee Calculations**: Real protocol fee math (0.1% protocol fee)
-- ✅ **Event Emissions**: Standard unglued events with correct parameters
+### **Hooks**
+Custom logic executed during ungluing. Use to capture fees, redistribute value, or implement custom mechanics.
 
-### ⚠️ **Important: ERC20 vs ERC721 Interface Differences**
+---
 
-The Glue Protocol has different interfaces for ERC20 tokens and ERC721 NFTs. We provide **separate mock contracts** for each interface:
+## 🎓 Best Practices
 
-| Function | ERC20 Interface | ERC721 Interface |
-|----------|-----------------|------------------|
-| **Individual Unglue** | `unglue(collaterals[], amount, recipient)` | `unglue(collaterals[], tokenIds[], recipient)` |
-| **Batch Unglue** | `batchUnglue(assets[], amounts[], collaterals[], recipients[])` | `batchUnglue(assets[], tokenIds[][], collaterals[], recipients[])` |
+### **DO:**
+- ✅ Use `_transferAsset()` for transfers (handles tax tokens automatically)
+- ✅ Use `_burnAsset()` for burns (safe, automatic)
+- ✅ Use `_md512()` for fee calculations (high-precision, prevents overflow)
+- ✅ Use `address(0)` for ETH
+- ✅ Use `PRECISION` (1e18) for percentages
+- ✅ Add limits to loops (`require(arr.length <= 100)`)
+- ✅ Inherit from appropriate base contract
 
-**Key Differences:**
-- **ERC20**: Uses `uint256 amount` parameter for token amounts
-- **ERC721**: Uses `uint256[] tokenIds` or `uint256[][]` arrays for NFT token IDs
-- **Calculations**: ERC20 uses amount/totalSupply, ERC721 uses nftCount/totalSupply
-- **Hook Behavior**: ERC20 hooks transfer amounts, NFT hooks only track (no transfers)
+### **DON'T:**
+- ❌ Modify GLUE_STICK addresses (license violation)
+- ❌ Use `IERC20.transfer()` (doesn't handle tax tokens)
+- ❌ Use `payable.transfer()` (can fail silently)
+- ❌ Use raw `* /` for fees (overflow risk)
+- ❌ Manually handle decimals (use `_adjustDecimals()`)
+- ❌ Create unbounded loops
 
-### Why Use These Mocks?
+---
 
-- ✅ **Test without mainnet deployment**: No need for full protocol setup
-- ✅ **Complete control**: Manually set supply deltas, balances, fees  
-- ✅ **Standard interfaces**: Use real IGlueERC20/IGlueERC721/IGlueStickERC20/IGlueStickERC721 interfaces
-- ✅ **Individual focus**: Each mock tests one specific function
-- ✅ **Comprehensive documentation**: Extensive examples and clear instructions
-- ✅ **Accurate behavior**: Real protocol fee calculations and hook simulation
-- ✅ **Hook testing**: Test hooks with proper two-phase simulation
-- ✅ **Real hook transfers**: Hook amounts actually transferred to sticky asset
+## 🔧 Helper Functions Reference
 
-### Available Mock Contracts
+### **Transfers**
+```solidity
+_transferAsset(token, to, amount, tokenIds, fungible);
+_transferFromAsset(token, from, to, amount, tokenIds, fungible) returns (actualReceived);
+```
 
-#### 1. MockUnglueERC20 - Test Individual ERC20 Unglue Operations
+### **Burns**
+```solidity
+_burnAsset(token, amount, fungible, tokenIds);
+_burnAssetFrom(token, from, amount, fungible, tokenIds);
+```
 
-**Focus**: Testing `IGlueERC20.unglue(collaterals, amount, recipient)` functionality with accurate hook simulation.
+### **Math**
+```solidity
+_md512(a, b, denominator); // High-precision mul-div
+_md512Up(a, b, denominator); // Rounds up
+_adjustDecimals(amount, tokenIn, tokenOut); // Decimal conversion
+```
+
+### **Balances**
+```solidity
+_balanceOfAsset(token, account, fungible);
+_getGlueBalances(asset, collaterals, fungible);
+```
+
+### **Glue Operations**
+```solidity
+_initializeGlue(asset, fungible) returns (glue);
+_hasAGlue(asset, fungible) returns (bool);
+```
+
+**Full reference:** See contract files or [V2_UPDATE.md](./doc/V2_UPDATE.md)
+
+---
+
+## 🌟 Why Glue Protocol?
+
+- **Fully Onchain** - No oracles, no keepers, no offchain dependencies
+- **Composable** - Works with ANY ERC20/ERC721, integrates with ANY DeFi protocol
+- **Capital Efficient** - Flash loans across multiple sources, batch operations
+- **Developer Friendly** - 3-line integration, inherit-and-done
+- **Battle-Tested** - Live on mainnet handling real value
+
+---
+
+## 📊 Package Structure
+
+```
+contracts/
+├── base/
+│   ├── StickyAsset.sol          (Create sticky assets)
+│   ├── InitStickyAsset.sol      (Proxy-friendly version)
+│   ├── GluedLoanReceiver.sol    (Flash loans)
+│   ├── GluedTools.sol           (Full helpers, ERC20 + ERC721)
+│   └── GluedToolsERC20.sol      (Full helpers, ERC20 only)
+├── tools/
+│   ├── GluedToolsMin.sol        (Minimal helpers, ERC20 + ERC721)
+│   └── GluedToolsERC20Min.sol   (Minimal helpers, ERC20 only)
+├── libraries/
+│   ├── GluedConstants.sol       (Protocol constants)
+│   └── GluedMath.sol            (High-precision math)
+├── interfaces/
+│   └── [All protocol interfaces]
+├── mocks/
+│   └── [Testing mocks]
+└── examples/
+    └── [Ready-to-deploy examples]
+```
+
+---
+
+## 🤖 AI-Assisted Development
+
+**Using Claude, ChatGPT, or other AI?**
+
+Paste [`doc/vibecodersBible.txt`](./doc/vibecodersBible.txt) into your chat for:
+- ✅ Expert Glue Protocol assistance
+- ✅ Always uses helper functions (never raw operations)
+- ✅ Creates TypeScript tests + deployment scripts automatically
+- ✅ Suggests fully onchain solutions
+- ✅ Protects protocol addresses (won't help modify them)
+- ✅ Explains onchain vs offchain tradeoffs
+- ✅ Suggests revenue generation ideas
+
+---
+
+## 🧪 Testing
+
+Use included mocks for easy testing:
 
 ```solidity
-// Import and deploy
 import "@glue-finance/expansions-pack/mocks/MockUnglueERC20.sol";
 
-contract TestMyERC20Strategy {
-    MockUnglueERC20 mockGlue;
-    
-    function setUp() public {
-        mockGlue = new MockUnglueERC20();
-        
-        // Configure the mock
-        mockGlue.setStickyAsset(myERC20Token);
-        mockGlue.setMockTotalSupply(1000e18); // 1000 token total supply
-        
-        // Add collateral
-        mockGlue.addCollateral(USDC, 1000e6); // 1000 USDC
-        mockGlue.addETH{value: 1e18}();       // 1 ETH
-        
-        // Configure the mock hooks (matches real protocol)
-        mockGlue.configureHooks(true, 5e16); // 5% sticky asset hook
-        mockGlue.setAssetHookSize(USDC, 2e16); // 2% USDC hook
-    }
-    
-    function testHookSimulation() public {
-        address[] memory collaterals = new address[](2);
-        collaterals[0] = USDC;
-        collaterals[1] = address(0); // ETH
-        
-        // Execute unglue - burn 100 tokens
-        mockGlue.unglue(collaterals, 100e18, alice);
-        
-        // PHASE 1: tryHook(myERC20Token, 100e18) 
-        // → 5e18 tokens sent to myERC20Token, 95e18 effective amount
-        // PHASE 2: tryHook(USDC, netAmount)
-        // → 2% of USDC sent to myERC20Token, Alice gets remainder
-        
-        // Verify hook tracking
-        assertEq(mockGlue.getHookAmountTransferred(myERC20Token), 5e18); // Sticky hook amount
-        assertGt(mockGlue.getHookAmountTransferred(USDC), 0); // USDC hook amount
-        assertEq(mockGlue.getHookExecutionCount(myERC20Token), 1); // Hook executed once
-        
-        // Check hook status  
-        assertEq(mockGlue.getHookStatus(), 2); // BIO.HOOK
-        assertTrue(mockGlue.hasHook()); // Hook interface simulation
-    }
-}
+MockUnglueERC20 mockGlue = new MockUnglueERC20();
+mockGlue.setStickyAsset(myToken);
+mockGlue.addCollateral(USDC, 1000e6);
+mockGlue.unglue([USDC], 100e18, recipient);
 ```
 
-#### 2. MockUnglueERC721 - Test Individual NFT Unglue Operations
+Mocks simulate real protocol behavior without full deployment.
 
-**Focus**: Testing `IGlueERC721.unglue(collaterals, tokenIds[], recipient)` functionality with accurate NFT hook simulation.
+---
 
-```solidity
-// Import and deploy
-import "@glue-finance/expansions-pack/mocks/MockUnglueERC721.sol";
+## 🔗 Resources
 
-contract TestMyNFTStrategy {
-    MockUnglueERC721 mockGlue;
-    
-    function setUp() public {
-        mockGlue = new MockUnglueERC721();
-        
-        // Configure the mock
-        mockGlue.setStickyAsset(myNFTCollection);
-        mockGlue.setMockTotalSupply(10000); // 10k NFT collection
-        
-        // Add collateral
-        mockGlue.addCollateral(USDC, 100000e6); // 100k USDC
-        mockGlue.addETH{value: 100e18}();       // 100 ETH
-        
-        // Configure NFT hooks (special behavior!)
-        mockGlue.configureHooks(true, 0); // Enable hooks but sticky hook has no economic impact
-        mockGlue.setAssetHookSize(USDC, 2e16); // 2% USDC hook
-    }
-    
-    function testNFTHookSimulation() public {
-        address[] memory collaterals = new address[](2);
-        collaterals[0] = USDC;
-        collaterals[1] = address(0); // ETH
-        
-        uint256[] memory tokenIds = new uint256[](3);
-        tokenIds[0] = 1; tokenIds[1] = 2; tokenIds[2] = 3;
-        
-        // Execute unglue - burn 3 NFTs
-        mockGlue.unglue(collaterals, tokenIds, alice);
-        
-        // PHASE 1: tryHook(myNFTCollection, 3, [1,2,3]) 
-        // → NO AMOUNT TRANSFERRED (key NFT difference!)
-        // → Still calls executeHook with 3 and [1,2,3] for tracking
-        // → Returns 0 (no amount reduction)
-        // PHASE 2: tryHook(USDC, netAmount, [1,2,3])
-        // → 2% of USDC sent to myNFTCollection, Alice gets remainder
-        
-        // Verify NFT hook tracking
-        assertEq(mockGlue.getHookAmountTransferred(myNFTCollection), 0); // NO TRANSFER for NFTs!
-        assertGt(mockGlue.getHookAmountTransferred(USDC), 0); // USDC hook amount transferred
-        assertEq(mockGlue.getHookExecutionCount(myNFTCollection), 1); // Hook executed for tracking
-        
-        // Check NFT tracking
-        assertTrue(mockGlue.isTokenIdBurned(1));
-        assertTrue(mockGlue.isTokenIdBurned(2));
-        assertTrue(mockGlue.isTokenIdBurned(3));
-        
-        // Verify executeHook call details
-        (address asset, uint256 amount, uint256[] memory ids, uint256 timestamp) = 
-            mockGlue.getLastExecuteHookCall();
-        assertEq(asset, myNFTCollection);
-        assertEq(amount, 3); // NFT count passed to hook
-        assertEq(ids.length, 3); // Actual tokenIds passed
-        assertEq(ids[0], 1); assertEq(ids[1], 2); assertEq(ids[2], 3);
-    }
-}
-```
+- 📖 **[Wiki](https://wiki.glue.finance)** - Complete documentation
+- 💬 **[Discord](https://discord.gg/ZxqcBxC96w)** - Community & support
+- 💻 **[GitHub](https://github.com/glue-finance/glue-ExpansionsPack)** - Source code
+- 🌐 **[Website](https://glue.finance)** - Learn more
+- 🐦 **[Twitter/X](https://x.com/glue_finance)** - Updates
 
-#### 3. MockBatchUnglueERC20 - Test Multi-Asset ERC20 Operations
+---
 
-**Focus**: Testing `IGlueStickERC20.batchUnglue(assets, amounts[], collaterals, recipients)` functionality with per-glue hook configuration.
+## 📈 Coming from v1.x?
 
-```solidity
-// Import and deploy
-import "@glue-finance/expansions-pack/mocks/MockBatchUnglueERC20.sol";
+See [V2_UPDATE.md](./doc/V2_UPDATE.md) for:
+- What's new in v2.0
+- Why the architecture is superior
+- Migration guide
+- Performance improvements (27% smaller bytecode!)
+- Development speed improvements (10-96x faster!)
 
-contract TestMyERC20BatchStrategy {
-    MockBatchUnglueERC20 mockBatch;
-    
-    function setUp() public {
-        mockBatch = new MockBatchUnglueERC20();
-        
-        // Register multiple ERC20 tokens with their glues
-        mockBatch.registerStickyAsset(tokenA, mockGlueA);
-        mockBatch.registerStickyAsset(tokenB, mockGlueB);
-        
-        // Set different total supplies
-        mockBatch.setMockTotalSupply(tokenA, 1000e18); // 1000 tokens for A
-        mockBatch.setMockTotalSupply(tokenB, 2000e18); // 2000 tokens for B
-        
-        // Add collateral to each glue
-        mockBatch.addCollateralToGlue(mockGlueA, USDC, 1000e6);
-        mockBatch.addCollateralToGlue(mockGlueB, USDC, 2000e6);
-        
-        // Configure hooks per glue (accurate simulation)
-        mockBatch.configureHooksForGlue(mockGlueA, true, 2e16); // 2% sticky hook for A
-        mockBatch.setAssetHookSizeForGlue(mockGlueA, USDC, 1e16); // 1% USDC hook for A
-        mockBatch.configureHooksForGlue(mockGlueB, false, 0); // No hooks for B
-    }
-    
-    function testERC20BatchHooks() public {
-        address[] memory assets = new address[](2);
-        assets[0] = tokenA; assets[1] = tokenB;
-        
-        uint256[] memory amounts = new uint256[](2);
-        amounts[0] = 100e18; amounts[1] = 200e18; // 10% from A, 10% from B
-        
-        address[] memory collaterals = new address[](1);
-        collaterals[0] = USDC;
-        
-        address[] memory recipients = new address[](1);
-        recipients[0] = alice;
-        
-        // Execute batch unglue
-        mockBatch.batchUnglue(assets, amounts, collaterals, recipients);
-        
-        // Verify per-glue hook behavior
-        assertGt(mockBatch.getHookAmountTransferredForGlue(mockGlueA, tokenA), 0); // Sticky hook A
-        assertGt(mockBatch.getHookAmountTransferredForGlue(mockGlueA, USDC), 0); // USDC hook A
-        assertEq(mockBatch.getHookAmountTransferredForGlue(mockGlueB, tokenB), 0); // No hooks B
-        assertEq(mockBatch.getHookAmountTransferredForGlue(mockGlueB, USDC), 0); // No hooks B
-    }
-}
-```
+**No code changes needed for existing StickyAsset users.**
 
-#### 4. MockBatchUnglueERC721 - Test Multi-Collection NFT Operations
+---
 
-**Focus**: Testing `IGlueStickERC721.batchUnglue(assets, tokenIds[][], collaterals, recipients)` functionality with NFT-specific hook behavior.
+## 🎁 What You Get
 
-```solidity
-// Import and deploy
-import "@glue-finance/expansions-pack/mocks/MockBatchUnglueERC721.sol";
+- **31 Contracts** ready to use
+- **6 Networks** supported (+ more on request)
+- **Helper Functions** for safe operations
+- **Testing Mocks** for easy testing
+- **Professional Documentation** throughout
 
-contract TestMyNFTBatchStrategy {
-    MockBatchUnglueERC721 mockBatch;
-    
-    function testNFTBatchHooks() public {
-        // ... setup similar to above ...
-        
-        // Create 2D tokenIds array
-        uint256[][] memory tokenIds = new uint256[][](2);
-        tokenIds[0] = new uint256[](3); // 3 NFTs from collection A
-        tokenIds[0][0] = 1; tokenIds[0][1] = 2; tokenIds[0][2] = 3;
-        tokenIds[1] = new uint256[](2); // 2 NFTs from collection B  
-        tokenIds[1][0] = 100; tokenIds[1][1] = 200;
-        
-        // Execute batch unglue
-        mockBatch.batchUnglue(assets, tokenIds, collaterals, recipients);
-        
-        // Verify NFT-specific hook behavior
-        assertEq(mockBatch.getHookAmountTransferredForGlue(mockGlueA, collectionA), 0); // NO TRANSFER for NFTs!
-        assertGt(mockBatch.getHookExecutionCountForGlue(mockGlueA, collectionA), 0); // But hook was called for tracking
-        
-        // Check NFT tracking per collection
-        assertTrue(mockBatch.isTokenIdBurnedForCollection(collectionA, 1));
-        assertTrue(mockBatch.isTokenIdBurnedForCollection(collectionB, 100));
-    }
-}
-```
+---
 
-### Hook Testing Helper Functions
+**Built with ❤️ by La-Li-Lu-Le-Lo (@lalilulel0z) and the Glue Finance Team**
 
-All mock contracts include comprehensive helper functions for testing hook behavior:
-
-```solidity
-// Hook status and configuration
-uint8 status = mock.getHookStatus(); // 0=UNCHECKED, 1=NO_HOOK, 2=HOOK
-uint256 hookSize = mock.getAssetHookSize(USDC); // Get configured hook size
-bool hasHooks = mock.hasHook(); // Simulates IGluedHooks.hasHook()
-
-// Hook execution tracking
-uint256 executions = mock.getHookExecutionCount(myToken); // Number of executeHook calls
-uint256 transferred = mock.getHookAmountTransferred(USDC); // Total amount transferred via hooks
-
-// Last executeHook call details (NFT contracts include tokenIds)
-(address asset, uint256 amount, uint256[] memory tokenIds, uint256 timestamp) = 
-    mock.getLastExecuteHookCall();
-
-// Hook interface simulation (matches IGluedHooks)
-uint256 hookSize = mock.hookSize(USDC, 1000e6); // Simulates hookSize() call
-uint256 impact = mock.hooksImpact(USDC, 1000e6, 100e18); // Simulates hooksImpact() call
-```
-
-### Other Mock Contracts
-
-- **MockFlashLoan.sol**: Test individual flash loan functionality
-- **MockGluedLoan.sol**: Test cross-glue flash loans
-- **MockStickyAsset.sol**: Mock sticky asset with configurable addresses (testing only)
-- **MockGluedLoanReceiver.sol**: Mock flash loan receiver for testing
-
-### Mock Contract Imports
-
-```solidity
-// Import specific mocks as needed
-import "@glue-finance/expansions-pack/mocks/MockUnglueERC20.sol";
-import "@glue-finance/expansions-pack/mocks/MockUnglueERC721.sol";
-import "@glue-finance/expansions-pack/mocks/MockBatchUnglueERC20.sol";
-import "@glue-finance/expansions-pack/mocks/MockBatchUnglueERC721.sol";
-
-// Or import via index (includes all contracts)
-import {MockUnglueERC20, MockUnglueERC721} from "@glue-finance/expansions-pack";
-```
-
-Each mock contract is **ultra-documented** with comprehensive examples, parameter explanations, and usage patterns. They're designed to make testing your Glue Protocol integrations as simple and reliable as possible, with **full interface compatibility** and **accurate protocol behavior including proper hook simulation**!
-
-## Documentation
-
-For detailed documentation and advanced usage examples, visit the [Glue Protocol Wiki](https://wiki.glue.finance).
-
-## License
-
-Most components of the Glue Protocol Expansions Pack are available under permissive open-source licenses. However, **StickyAsset.sol** is licensed under the [Business Source License 1.1](https://github.com/glue-finance/glue/blob/main/LICENCE.txt) with an end date of 2029-02-29 or a date specified at [v1-license-date.gluefinance.eth](https://v1-license-date.gluefinance.eth).
-
-### StickyAsset License Terms (BUSL-1.1)
-
-**StickyAsset.sol** can be **used and integrated freely** as long as it maintains operation with the official Glue Protocol addresses. This means you can:
-
-✅ **Use StickyAsset freely** in your projects  
-✅ **Integrate with confidence** knowing it operates with official protocol addresses  
-✅ **Build and deploy** tokens that inherit from StickyAsset  
-✅ **Earn money** from your StickyAsset-based projects  
-
-The only requirement is that StickyAsset **must maintain integration** with the official Glue_Stick addresses.
-
-### General Protocol License Terms
-
-The protocol is permissionless - you can build on top of it for both public good and profit. However, you cannot fork and deploy your own version of the core protocol.
-
-### Required Official Addresses
-
-When using StickyAsset, your contract must interact with these official addresses:
-
-- **GLUE_STICK_ERC20**: `0x5fEe29873DE41bb6bCAbC1E4FB0Fc4CB26a7Fd74`
-- **GLUE_STICK_ERC721**: `0xe9B08D7dC8e44F1973269E7cE0fe98297668C257`
-
-### Other Components
-
-All other components (interfaces, libraries, examples, mocks) are available under permissive open-source licenses.
-
-## Security
-
-This project is provided "as is" and may contain bugs or security vulnerabilities. Please use at your own risk and consider getting a security audit before using in production.
-
-## Links
-
-- [Website](https://glue.finance)
-- [Wiki](https://wiki.glue.finance) 
-- [GitHub](https://github.com/glue-finance)
-- [Discord](https://discord.gg/glue-finance) 
+🚀 **Start building:** `npm install @glue-finance/expansions-pack`

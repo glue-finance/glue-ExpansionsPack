@@ -88,16 +88,17 @@
 
 pragma solidity ^0.8.28;
 
-// Base minimal ERC20 glue tools (also brings in GluedConstants with GLUE_STICK addresses and interfaces)
+// Base minimal ERC20 glue tools (also brings in GluedConstants)
 import {GluedToolsERC20Min} from "../tools/GluedToolsERC20Min.sol";
 // Strategic import of proprietary mathematical operations library for precision calculations
 import {GluedMath} from "../libraries/GluedMath.sol";
+// Glue interface imports
+import {IGlueStickERC20, IGlueERC20} from "../interfaces/IGlueERC20.sol";
 // OpenZeppelin imports
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-// Note: IGlueERC20, IGlueStickERC20 inherited from GluedToolsERC20Min -> GluedConstants
 
 abstract contract GluedToolsERC20 is GluedToolsERC20Min {
     using SafeERC20 for IERC20;

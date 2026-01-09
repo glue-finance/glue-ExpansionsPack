@@ -75,6 +75,8 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
+import {IGlueStickERC20, IGlueERC20} from "../interfaces/IGlueERC20.sol";
+import {IGlueStickERC721, IGlueERC721} from "../interfaces/IGlueERC721.sol";
 import {GluedConstants} from "../libraries/GluedConstants.sol";
 
 abstract contract GluedToolsMin is IERC721Receiver, GluedConstants {
