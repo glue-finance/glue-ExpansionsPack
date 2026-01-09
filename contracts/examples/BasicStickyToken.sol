@@ -21,7 +21,7 @@
    ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝ 
 
 @title Basic Sticky Token - Minimal Implementation Example
-@author @BasedToschi
+@author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 @notice Example implementation of a simple ERC20 token with StickyAsset integration
 @dev This contract demonstrates the minimal setup required to create a sticky token
 that integrates with the Glue Protocol ecosystem. It combines standard ERC20 functionality

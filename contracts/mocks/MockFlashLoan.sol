@@ -10,7 +10,7 @@
 ╚═╝     ╚═╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝    ╚═╝     ╚══════╝╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝    ╚══════╝ ╚═════╝ ╚═╝  ╚═╝╚═╝  ╚═══╝
 
 @title Mock Flash Loan - Ultra Simple Testing Mock
-@author @BasedToschi
+@author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 @notice Ultra-simple mock for testing flash loan functionality with manual parameter control
 @dev This mock allows you to:
      1. Add collateral tokens (like a real glue would have)

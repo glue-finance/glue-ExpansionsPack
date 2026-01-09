@@ -1,6 +1,18 @@
 // SPDX-License-Identifier: BUSL-1.1
 
 /**
+ * ⚠️  LICENSE NOTICE - BUSINESS SOURCE LICENSE 1.1 ⚠️
+ * 
+ * This contract is licensed under BUSL-1.1. You may use it freely as long as you:
+ * ✅ Do NOT modify the GLUE_STICK addresses in GluedConstants
+ * ✅ Maintain integration with official Glue Protocol addresses
+ * 
+ * ❌ Editing GLUE_STICK_ERC20 or GLUE_STICK_ERC721 addresses = LICENSE VIOLATION
+ * 
+ * See LICENSE file for complete terms.
+ */
+
+/**
 
 ███████╗████████╗██╗ ██████╗██╗  ██╗██╗   ██╗    
 ██╔════╝╚══██╔══╝██║██╔════╝██║ ██╔╝╚██╗ ██╔╝    
@@ -21,22 +33,13 @@
 ██║ ╚████║██║  ██║   ██║   ██║ ╚████╔╝ ███████╗  
 ╚═╝  ╚═══╝╚═╝  ╚═╝   ╚═╝   ╚═╝  ╚═══╝  ╚══════╝             
 
-          ██╗███╗   ██╗██╗████████╗██╗ █████╗ ██╗     ██╗███████╗ █████╗ ██████╗ ██╗     ███████╗
-          ██║████╗  ██║██║╚══██╔══╝██║██╔══██╗██║     ██║╚══███╔╝██╔══██╗██╔══██╗██║     ██╔════╝
-          ██║██╔██╗ ██║██║   ██║   ██║███████║██║     ██║  ███╔╝ ███████║██████╔╝██║     █████╗  
-          ██║██║╚██╗██║██║   ██║   ██║██╔══██║██║     ██║ ███╔╝  ██╔══██║██╔══██╗██║     ██╔══╝  
-          ██║██║ ╚████║██║   ██║   ██║██║  ██║███████╗██║███████╗██║  ██║██████╔╝███████╗███████╗
-          ╚═╝╚═╝  ╚═══╝╚═╝   ╚═╝   ╚═╝╚═╝  ╚═╝╚══════╝╚═╝╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝╚══════╝
-
 */
 
 pragma solidity ^0.8.28;
 
 /**
-@dev Interfaces for GlueERC20 and GlueERC721
+@dev Interface for InitStickyAsset
 */
-import {IGlueStickERC20, IGlueERC20} from "../interfaces/IGlueERC20.sol";
-import {IGlueStickERC721, IGlueERC721} from '../interfaces/IGlueERC721.sol';
 import {IInitStickyAsset} from '../interfaces/IInitStickyAsset.sol';
 
 /**
@@ -45,8 +48,15 @@ import {IInitStickyAsset} from '../interfaces/IInitStickyAsset.sol';
 import {GluedMath} from '../libraries/GluedMath.sol';
 
 /**
+@dev Minimal Glue Protocol helper tools for advanced DeFi operations
+@dev Provides utility functions for transfers, balance tracking, and glue interactions
+@dev Also brings in GluedConstants (GLUE_STICK addresses, IGlueERC20/721 interfaces, PRECISION, ETH_ADDRESS, etc.)
+*/
+import {GluedToolsMin} from '../tools/GluedToolsMin.sol';
+
+/**
  * @title Sticky Asset Native Standard - Initializable Version
- * @author @BasedToschi
+ * @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
  * 
  * @notice Create proxy/clone-friendly tokens that natively integrate with Glue Protocol
  * 
@@ -131,7 +141,7 @@ import {GluedMath} from '../libraries/GluedMath.sol';
  * - For minimal helper functions: See GluedToolsMin, GluedToolsERC20Min
  * - For standard (non-proxy) sticky assets: See StickyAsset
  */
-abstract contract InitStickyAsset is IInitStickyAsset {
+abstract contract InitStickyAsset is IInitStickyAsset, GluedToolsMin {
 
 /**
 --------------------------------------------------------------------------------------------------------
@@ -149,33 +159,7 @@ abstract contract InitStickyAsset is IInitStickyAsset {
     // █████╗ Core State and Constants
     // ╚════╝ All variables and constants are declared internal for derived contract access
     //        Inheriting contracts can leverage these properties to build custom logic
-
-    /// @notice Precision factor used for fractional calculations (10^18)
-    uint256 internal constant PRECISION = 1e18;
-
-    /// @notice Special address used to represent native ETH in the protocol
-    address internal constant ETH_ADDRESS = address(0);
-
-    /// @notice Dead address used for burning tokens that don't support burn functionality
-    address internal constant DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
-
-    /// @notice Address of the protocol-wide Glue Stick for ERC20s contract
-    // ❌ EDITING THIS ADDRESS WILL BREAK THE LICENSE
-    IGlueStickERC20 internal constant GLUE_STICK_ERC20 = IGlueStickERC20(0x5fEe29873DE41bb6bCAbC1E4FB0Fc4CB26a7Fd74);
-
-    /// @notice Address of the protocol-wide Glue Stick for ERC721s contract
-    // ❌ EDITING THIS ADDRESS WILL BREAK THE LICENSE
-    IGlueStickERC721 internal constant GLUE_STICK_ERC721 = IGlueStickERC721(0xe9B08D7dC8e44F1973269E7cE0fe98297668C257);
-
-    /**
-     * ⚠️  WARNING: EDITING THE GLUE STICK ADDRESSES WILL BREAK THE LICENSE ⚠️
-     * 
-     * LICENSE VIOLATIONS:
-     * ❌ Deploying with edited GLUE_STICK_ERC20 and GLUE_STICK_ERC721 addresses on mainnet = LICENSE VIOLATION
-     * ❌ Deploying with edited GLUE_STICK_ERC20 and GLUE_STICK_ERC721 addresses on production networks = LICENSE VIOLATION
-     * ❌ Using edited GLUE_STICK_ERC20 and GLUE_STICK_ERC721 addresses in production = LICENSE VIOLATION
-     * 
-     */
+    // Constants (PRECISION, ETH_ADDRESS, DEAD_ADDRESS, GLUE_STICK addresses) inherited from GluedToolsMin -> GluedConstants
     
     /// @notice Address of the Glue contract for the token (set during initialization)
     address internal GLUE;

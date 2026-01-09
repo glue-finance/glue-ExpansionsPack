@@ -16,7 +16,7 @@
                                     ╚══════╝╚═╝  ╚═╝ ╚═════╝╚══════╝ ╚═════╝ 
 
 @title Mock Unglue ERC20 - Ultra Simple Testing Mock
-@author @BasedToschi
+@author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 @notice Ultra-simple mock for testing IGlueERC20.unglue() functionality with ERC20 amount parameter
 @dev This mock implements the exact IGlueERC20.unglue() interface:
      - unglue(collaterals[], amount, recipient) - ERC20 style with amount parameter

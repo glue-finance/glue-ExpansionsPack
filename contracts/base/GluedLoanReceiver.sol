@@ -1,5 +1,16 @@
-// SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: BUSL-1.1
+
 /**
+ * ⚠️  LICENSE NOTICE - BUSINESS SOURCE LICENSE 1.1 ⚠️
+ * 
+ * This contract is licensed under BUSL-1.1. You may use it freely as long as you:
+ * ✅ Do NOT modify the GLUE_STICK addresses in GluedConstants
+ * ✅ Maintain integration with official Glue Protocol addresses
+ * 
+ * ❌ Editing GLUE_STICK_ERC20 or GLUE_STICK_ERC721 addresses = LICENSE VIOLATION
+ * 
+ * See LICENSE file for complete terms.
+ */
 
 /**
 
@@ -26,24 +37,23 @@ pragma solidity ^0.8.28;
 import {IGluedLoanReceiver} from '../interfaces/IGluedLoanReceiver.sol';
 
 /**
-@dev Interfaces for GlueStickERC20 and GlueStickERC721 for proper type safety
-*/
-import {IGlueStickERC20, IGlueERC20} from '../interfaces/IGlueERC20.sol';
-import {IGlueStickERC721, IGlueERC721} from '../interfaces/IGlueERC721.sol';
-
-/**
 @dev Library providing high-precision mathematical operations and utilities
 */
 import {GluedMath} from '../libraries/GluedMath.sol';
 
 /**
+@dev Minimal Glue Protocol helper tools for ERC20 operations (includes GluedConstants)
+*/
+import {GluedToolsERC20Min} from '../tools/GluedToolsERC20Min.sol';
+
+/**
  * @title Glued Loan Receiver Base Contract
- * @author @BasedToschi
+ * @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
  * @notice Abstract base contract for implementing flash loan receivers with the Glue Protocol
  * @dev This provides core flash loan management functionality that can be used
  * by any contract wanting to receive flash loans from the Glue Protocol with minimal overhead
  */
-abstract contract GluedLoanReceiver is IGluedLoanReceiver {
+abstract contract GluedLoanReceiver is IGluedLoanReceiver, GluedToolsERC20Min {
 
 /**
 --------------------------------------------------------------------------------------------------------
@@ -58,23 +68,10 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver {
     // GluedMath for calculations
     using GluedMath for uint256;
 
-    // █████╗ Core State and Constants
-    // ╚════╝ All variables and constants are declared internal for derived contract access
-
-    /// @notice Precision factor used for fractional calculations (10^18)
-    uint256 internal constant PRECISION = 1e18;
-
-    /// @notice Special address used to represent native ETH in the protocol
-    address internal constant ETH_ADDRESS = address(0);
-
-    /// @notice Address of the GlueStickERC20 factory contract for ERC20 flash loans
-    IGlueStickERC20 internal constant GLUE_STICK_ERC20 = IGlueStickERC20(0x5fEe29873DE41bb6bCAbC1E4FB0Fc4CB26a7Fd74);
-
-    /// @notice Address of the GlueStickERC721 factory contract for ERC721 flash loans
-    IGlueStickERC721 internal constant GLUE_STICK_ERC721 = IGlueStickERC721(0xe9B08D7dC8e44F1973269E7cE0fe98297668C257);
-
     // █████╗ Flash Loan State
     // ╚════╝ State variables to track current flash loan execution
+    // Constants (PRECISION, ETH_ADDRESS, GLUE_STICK addresses) inherited from GluedToolsERC20Min -> GluedConstants
+    // Helper functions (_transferAsset, _balanceOfAsset, _initializeGlue, etc.) inherited from GluedToolsERC20Min
 
     /// @notice Array of glue contracts involved in the current flash loan
     address[] internal _currentGlues;
@@ -124,13 +121,8 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver {
         _flashLoanActive = true;
 
         // Calculate total borrowed amount by checking actual balance received
-        if (collateral == ETH_ADDRESS) {
-            // For ETH, check contract balance
-            _currentTotalBorrowed = address(this).balance;
-        } else {
-            // For ERC20, check token balance
-            _currentTotalBorrowed = _getTokenBalance(collateral);
-        }
+        // Use _balanceOfAsset from GluedToolsERC20Min
+        _currentTotalBorrowed = _balanceOfAsset(collateral, address(this));
 
         // Execute custom logic (implemented by derived contracts)
         bool success = _executeFlashLoanLogic(params);
@@ -225,51 +217,21 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver {
     }
 
     /**
-    * @notice Internal function to get ERC20 token balance of this contract
-    * @param token Address of the ERC20 token
-    * @return balance The token balance of this contract
-    */
-    function _getTokenBalance(address token) internal view returns (uint256 balance) {
-        (bool success, bytes memory data) = token.staticcall(
-            abi.encodeWithSelector(0x70a08231, address(this)) // balanceOf(address)
-        );
-        
-        if (success && data.length >= 32) {
-            balance = abi.decode(data, (uint256));
-        }
-        
-        return balance;
-    }
-
-    /**
     * @notice Internal function to repay the flash loan to all glue contracts
     * @dev Automatically handles repayment to all glue contracts involved in the loan
+    * @dev Uses _transferAsset from GluedToolsERC20Min for safe ETH and ERC20 transfers
     * @return success True if all repayments were successful
     */
     function _repayFlashLoan() internal returns (bool success) {
         
-        // Repay each glue contract
+        // Repay each glue contract using _transferAsset from GluedToolsERC20Min
+        // This handles both ETH and ERC20 with proper SafeERC20 and Address.sendValue
         for (uint256 i = 0; i < _currentGlues.length; i++) {
-            
             address glue = _currentGlues[i];
             uint256 repayAmount = _currentExpectedAmounts[i];
 
-            if (_currentCollateral == ETH_ADDRESS) {
-                // Repay ETH
-                (bool sent, ) = glue.call{value: repayAmount}("");
-                if (!sent) {
-                    return false;
-                }
-            } else {
-                // Repay ERC20
-                (bool transferSuccess, bytes memory returnData) = _currentCollateral.call(
-                    abi.encodeWithSelector(0xa9059cbb, glue, repayAmount)
-                );
-                
-                if (!transferSuccess || (returnData.length > 0 && !abi.decode(returnData, (bool)))) {
-                    return false;
-                }
-            }
+            // Use _transferAsset helper - automatically handles ETH (address(0)) and ERC20
+            _transferAsset(_currentCollateral, glue, repayAmount);
         }
         
         return true;

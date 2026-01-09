@@ -16,7 +16,7 @@
 ╚═╝  ╚═╝╚══════╝ ╚═════╝╚══════╝╚═╝  ╚═══╝  ╚══════╝╚═╝  ╚═╝                
 
 @title Mock Glued Loan Receiver Base Contract
-@author @BasedToschi
+@author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 @notice Mock implementation for testing with configurable glue stick addresses
 @dev Identical to GluedLoanReceiver.sol but allows custom glue stick addresses for testing
 

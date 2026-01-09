@@ -44,7 +44,7 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 ╚═╝  ╚═══╝╚═╝        ╚═╝   ╚══════╝                                
 
 * @title IERC721Burnable
-* @author @BasedToschi
+* @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 * @notice Interface for ERC721 tokens that support burning functionality
 * @dev Extends the standard ERC721 interface with a burn function to destroy tokens
 */
@@ -73,7 +73,7 @@ interface IERC721Burnable is IERC721 {
 ╚══════╝   ╚═╝   ╚═╝ ╚═════╝╚═╝  ╚═╝
 
 * @title IGlueStickERC721
-* @author @BasedToschi
+* @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 * @notice Interface defining the factory contract API for creating and managing ERC721 NFT collection glue instances
 * @dev This interface establishes the contract API for the GlueStickERC721 factory,
 * which handles creation of glue contracts for NFT collections, batch operations,
@@ -409,7 +409,7 @@ interface IGlueStickERC721 {
  ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝
 
 * @title IGlueERC721
-* @author @BasedToschi
+* @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 * @notice Interface for individual glue contract instances managing ERC721 NFT collection collateralization
 * @dev This interface defines the API for GlueERC721 contracts that are created by the factory.
 * These contracts manage collateral for NFT collections, process ungluing operations based on

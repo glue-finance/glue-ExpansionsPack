@@ -23,7 +23,7 @@
    ╚═╝    ╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═══╝              
 
 @title Advanced Sticky Token - Full-Featured Implementation Example
-@author @BasedToschi
+@author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 @notice Comprehensive implementation of the StickyAsset with owner fee using GluedHooks
 @dev This contract demonstrates a sophisticated sticky token implementation with extensive configuration
 options, fee management, governance controls, and compliance features. It showcases the full potential

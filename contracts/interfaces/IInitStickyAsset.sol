@@ -30,7 +30,7 @@ import {IStickyAsset} from './IStickyAsset.sol';
 
 /**
  * @title IInitStickyAsset
- * @author @BasedToschi
+ * @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
  * @notice Interface for InitStickyAsset contracts that support factory deployment patterns
  * @dev Extends IStickyAsset with initialization functionality for clone/proxy deployments
  * @dev This interface is specifically designed for factory patterns where contracts are deployed

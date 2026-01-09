@@ -16,7 +16,7 @@
                                                ╚══════╝╚═╝  ╚═╝ ╚═════╝   ╚═╝  ╚══════╝ ╚═╝
 
 @title Mock Batch Unglue ERC721 - Ultra Simple Testing Mock
-@author @BasedToschi
+@author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 @notice Ultra-simple mock for testing IGlueStickERC721.batchUnglue() functionality with NFT tokenIds parameter
 @dev This mock implements the exact IGlueStickERC721.batchUnglue() interface:
      - batchUnglue(stickyAssets[], tokenIds[][], collaterals[], recipients[]) - ERC721 style with 2D tokenIds

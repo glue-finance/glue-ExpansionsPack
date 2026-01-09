@@ -16,7 +16,7 @@
                                                        ╚══════╝╚═╝  ╚═╝ ╚═════╝╚══════╝ ╚═════╝ 
 
 @title Mock Batch Unglue ERC20 - Ultra Simple Testing Mock
-@author @BasedToschi
+@author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 @notice Ultra-simple mock for testing IGlueStickERC20.batchUnglue() functionality with ERC20 amounts
 @dev This mock implements the exact IGlueStickERC20.batchUnglue() interface:
      - batchUnglue(stickyAssets[], stickyAmounts[], collaterals[], recipients[]) - ERC20 style with amounts

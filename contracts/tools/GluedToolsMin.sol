@@ -1,8 +1,35 @@
 // SPDX-License-Identifier: BUSL-1.1
 
 /**
+ * ⚠️  LICENSE NOTICE - BUSINESS SOURCE LICENSE 1.1 ⚠️
+ * 
+ * This contract is licensed under BUSL-1.1. You may use it freely as long as you:
+ * ✅ Do NOT modify the GLUE_STICK addresses in GluedConstants
+ * ✅ Maintain integration with official Glue Protocol addresses
+ * 
+ * ❌ Editing GLUE_STICK_ERC20 or GLUE_STICK_ERC721 addresses = LICENSE VIOLATION
+ * 
+ * See LICENSE file for complete terms.
+ */
+
+/**
+ ██████╗ ██╗     ██╗   ██╗███████╗██████╗                                              
+██╔════╝ ██║     ██║   ██║██╔════╝██╔══██╗                                             
+██║  ███╗██║     ██║   ██║█████╗  ██║  ██║                                             
+██║   ██║██║     ██║   ██║██╔══╝  ██║  ██║                                             
+╚██████╔╝███████╗╚██████╔╝███████╗██████╔╝                                             
+ ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝╚═════╝                                              
+████████╗ ██████╗  ██████╗ ██╗     ███████╗    ███╗   ███╗██╗███╗   ██╗              
+╚══██╔══╝██╔═══██╗██╔═══██╗██║     ██╔════╝    ████╗ ████║██║████╗  ██║              
+   ██║   ██║   ██║██║   ██║██║     ███████╗    ██╔████╔██║██║██╔██╗ ██║              
+   ██║   ██║   ██║██║   ██║██║     ╚════██║    ██║╚██╔╝██║██║██║╚██╗██║              
+   ██║   ╚██████╔╝╚██████╔╝███████╗███████║    ██║ ╚═╝ ██║██║██║ ╚████║              
+   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝    ╚═╝     ╚═╝╚═╝╚═╝  ╚═══╝              
+*/
+
+/**
  * @title GluedToolsMin - Minimal Glue Protocol Development Kit
- * @author @BasedToschi - Glue Finance
+ * @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi - Glue Finance
  * 
  * @notice The ultimate minimal toolkit for building DeFi applications that interact with the Glue Protocol
  * 
@@ -48,22 +75,13 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
-import {IGlueStickERC20, IGlueERC20} from "../interfaces/IGlueERC20.sol";
-import {IGlueStickERC721, IGlueERC721} from "../interfaces/IGlueERC721.sol";
+import {GluedConstants} from "../libraries/GluedConstants.sol";
 
-abstract contract GluedToolsMin is IERC721Receiver {
+abstract contract GluedToolsMin is IERC721Receiver, GluedConstants {
     using SafeERC20 for IERC20;
     using Address for address payable;
-
-    // ===== CONSTANTS =====
     
-    /// @notice Address of the protocol-wide Glue Stick for ERC20s contract
-    IGlueStickERC20 internal constant GLUE_STICK_ERC20_MIN = IGlueStickERC20(0x5fEe29873DE41bb6bCAbC1E4FB0Fc4CB26a7Fd74);
-
-    /// @notice Address of the protocol-wide Glue Stick for ERC721s contract
-    IGlueStickERC721 internal constant GLUE_STICK_ERC721_MIN = IGlueStickERC721(0xe9B08D7dC8e44F1973269E7cE0fe98297668C257);
-    
-    function initializeGlue(address stickyAsset, bool fungible) internal virtual returns (address glue) {
+    function _initializeGlue(address stickyAsset, bool fungible) internal virtual returns (address glue) {
         (bool isSticky, address existingGlue) = _isSticky(stickyAsset, fungible);
         if (!isSticky) {
             glue = _glueAnAsset(stickyAsset, fungible);
@@ -79,7 +97,7 @@ abstract contract GluedToolsMin is IERC721Receiver {
      * @param fungible Whether the asset is fungible
      * @return glue The glue address, or address(0) if failed
      */
-    function tryInitializeGlue(address stickyAsset, bool fungible) internal returns (address glue) {
+    function _tryInitializeGlue(address stickyAsset, bool fungible) internal returns (address glue) {
         // First check if already glued
         (bool isSticky, address existingGlue) = _isSticky(stickyAsset, fungible);
         if (isSticky) {
@@ -87,14 +105,14 @@ abstract contract GluedToolsMin is IERC721Receiver {
         }
         
         // Try to glue it - wrap in try-catch
-        if (fungible) {
-            try GLUE_STICK_ERC20_MIN.applyTheGlue(stickyAsset) returns (address _glue) {
+        if (fungible) {        
+        try GLUE_STICK_ERC20.applyTheGlue(stickyAsset) returns (address _glue) {
                 return _glue;
             } catch {
                 return address(0); // Failed - asset not compatible
             }
         } else {
-            try GLUE_STICK_ERC721_MIN.applyTheGlue(stickyAsset) returns (address _glue) {
+            try GLUE_STICK_ERC721.applyTheGlue(stickyAsset) returns (address _glue) {
                 return _glue;
             } catch {
                 return address(0); // Failed - asset not enumerable or compatible
@@ -102,12 +120,12 @@ abstract contract GluedToolsMin is IERC721Receiver {
         }
     }
 
-    function hasAGlue(address stickyAsset, bool fungible) internal view virtual returns (bool isSticky) {
+    function _hasAGlue(address stickyAsset, bool fungible) internal view virtual returns (bool isSticky) {
         (isSticky, ) = _isSticky(stickyAsset, fungible);
         return isSticky;
     }
 
-    function getGlueBalances(address stickyAsset, address[] memory collaterals, bool fungible) internal view virtual returns (uint256[] memory balances) {
+    function _getGlueBalances(address stickyAsset, address[] memory collaterals, bool fungible) internal view virtual returns (uint256[] memory balances) {
         (bool isSticky, address glue) = _isSticky(stickyAsset, fungible);
 
         if (!isSticky) {
@@ -128,7 +146,7 @@ abstract contract GluedToolsMin is IERC721Receiver {
         }
     }
 
-    function getTotalSupply(address stickyAsset, bool fungible) internal view virtual returns (uint256 totalSupply) {
+    function _getTotalSupply(address stickyAsset, bool fungible) internal view virtual returns (uint256 totalSupply) {
         if (stickyAsset == address(0)) {
             return type(uint256).max;
         }
@@ -154,7 +172,7 @@ abstract contract GluedToolsMin is IERC721Receiver {
         }
     }
 
-    function transferAsset(address token, address to, uint256 amount, uint256[] memory tokenIDs, bool fungible) internal virtual {
+    function _transferAsset(address token, address to, uint256 amount, uint256[] memory tokenIDs, bool fungible) internal virtual {
         if (fungible && amount == 0) {
             return;
         } else if (!fungible && tokenIDs.length == 0) {
@@ -190,7 +208,7 @@ abstract contract GluedToolsMin is IERC721Receiver {
         }
     }
 
-    function transferFromAsset(address token, address from, address to, uint256 amount, uint256[] memory tokenIDs, bool fungible) internal virtual returns (uint256 actualAmount) {
+    function _transferFromAsset(address token, address from, address to, uint256 amount, uint256[] memory tokenIDs, bool fungible) internal virtual returns (uint256 actualAmount) {
         if (fungible && amount == 0) {
             return 0;
         } else if (!fungible && tokenIDs.length == 0) {
@@ -241,7 +259,7 @@ abstract contract GluedToolsMin is IERC721Receiver {
         }
     }
 
-    function balanceOfAsset(address token, address account, bool fungible) internal view virtual returns (uint256) {
+    function _balanceOfAsset(address token, address account, bool fungible) internal view virtual returns (uint256) {
         if (token == address(0)) {
             return account.balance;
         } else {
@@ -263,7 +281,7 @@ abstract contract GluedToolsMin is IERC721Receiver {
      * @param tokenId The token ID
      * @return owner The owner address (address(0) if doesn't exist)
      */
-    function getNFTOwner(address token, uint256 tokenId) internal view virtual returns (address owner) {
+    function _getNFTOwner(address token, uint256 tokenId) internal view virtual returns (address owner) {
         try IERC721(token).ownerOf(tokenId) returns (address _owner) {
             return _owner;
         } catch {
@@ -285,18 +303,18 @@ abstract contract GluedToolsMin is IERC721Receiver {
 
     function _glueAnAsset(address stickyAsset, bool fungible) internal virtual returns (address glue) {
         if (fungible) {
-            glue = GLUE_STICK_ERC20_MIN.applyTheGlue(stickyAsset);
+            glue = GLUE_STICK_ERC20.applyTheGlue(stickyAsset);
         } else {
-            glue = GLUE_STICK_ERC721_MIN.applyTheGlue(stickyAsset);
+            glue = GLUE_STICK_ERC721.applyTheGlue(stickyAsset);
         }
         return glue;
     }
 
     function _isSticky(address stickyAsset, bool fungible) internal view virtual returns (bool isSticky, address glue) {
         if (fungible) {
-            (isSticky, glue) = GLUE_STICK_ERC20_MIN.isStickyAsset(stickyAsset);
+            (isSticky, glue) = GLUE_STICK_ERC20.isStickyAsset(stickyAsset);
         } else {
-            (isSticky, glue) = GLUE_STICK_ERC721_MIN.isStickyAsset(stickyAsset);
+            (isSticky, glue) = GLUE_STICK_ERC721.isStickyAsset(stickyAsset);
         }
         return (isSticky, glue);
     }

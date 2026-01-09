@@ -23,7 +23,7 @@
 ╚═╝╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝  ╚═╝ ╚═════╝╚══════╝       
 
 @title IGluedLoanReceiver - Enhanced Flash Loan Receiver Interface
-@author @BasedToschi
+@author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 @notice Comprehensive interface for flash loan receivers with the Glue Protocol
 @dev This interface defines the complete standard for contracts that want to receive
 flash loans from the Glue Protocol. It includes both the required executeOperation function

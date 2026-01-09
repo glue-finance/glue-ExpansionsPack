@@ -40,7 +40,7 @@ pragma solidity ^0.8.28;
 ╚══════╝   ╚═╝   ╚═╝ ╚═════╝╚═╝  ╚═╝
 
 * @title IGlueStickERC20
-* @author @BasedToschi
+* @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 * @notice Factory contract that creates and manages individual glue instances for ERC20 tokens
 * @dev This contract acts as the primary entry point to the Glue protocol. It deploys minimal proxies
 * using the Clones library to create individual GlueERC20 instances for each token, maintaining a
@@ -374,7 +374,7 @@ interface IGlueStickERC20 {
  ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝
 
 * @title IGlueERC20
-* @author @BasedToschi
+* @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 * @notice Interface for individual glue contract instances managing ERC20 token collateralization
 * @dev This interface defines the API for GlueERC20 contracts that are created by the factory.
 * These contracts manage collateral for tokens, process ungluing operations based on

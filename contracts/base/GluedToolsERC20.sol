@@ -1,8 +1,35 @@
 // SPDX-License-Identifier: BUSL-1.1
 
 /**
+ * ⚠️  LICENSE NOTICE - BUSINESS SOURCE LICENSE 1.1 ⚠️
+ * 
+ * This contract is licensed under BUSL-1.1. You may use it freely as long as you:
+ * ✅ Do NOT modify the GLUE_STICK addresses in GluedConstants
+ * ✅ Maintain integration with official Glue Protocol addresses
+ * 
+ * ❌ Editing GLUE_STICK_ERC20 or GLUE_STICK_ERC721 addresses = LICENSE VIOLATION
+ * 
+ * See LICENSE file for complete terms.
+ */
+
+/**
+ ██████╗ ██╗     ██╗   ██╗███████╗██████╗                                              
+██╔════╝ ██║     ██║   ██║██╔════╝██╔══██╗                                             
+██║  ███╗██║     ██║   ██║█████╗  ██║  ██║                                             
+██║   ██║██║     ██║   ██║██╔══╝  ██║  ██║                                             
+╚██████╔╝███████╗╚██████╔╝███████╗██████╔╝                                             
+ ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝╚═════╝                                              
+████████╗ ██████╗  ██████╗ ██╗     ███████╗    ███████╗██████╗  ██████╗ ██████╗  ██████╗ 
+╚══██╔══╝██╔═══██╗██╔═══██╗██║     ██╔════╝    ██╔════╝██╔══██╗██╔════╝██╔════╝ ██╔═████╗
+   ██║   ██║   ██║██║   ██║██║     ███████╗    █████╗  ██████╔╝██║     ╚█████╗  ██║██╔██║
+   ██║   ██║   ██║██║   ██║██║     ╚════██║    ██╔══╝  ██╔══██╗██║      ╚═══██╗ ████╔╝██║
+   ██║   ╚██████╔╝╚██████╔╝███████╗███████║    ███████╗██║  ██║╚██████╗██████╔╝ ╚██████╔╝
+   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝    ╚══════╝╚═╝  ╚═╝ ╚═════╝╚═════╝   ╚═════╝ 
+*/
+
+/**
  * @title GluedToolsERC20 - Advanced ERC20-Only Glue Protocol Development Kit  
- * @author @BasedToschi - Glue Finance
+ * @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi - Glue Finance
  * 
  * @notice The complete advanced toolkit for building ERC20-focused DeFi applications on top of Glue Protocol
  * 
@@ -61,7 +88,7 @@
 
 pragma solidity ^0.8.28;
 
-// Base minimal ERC20 glue tools
+// Base minimal ERC20 glue tools (also brings in GluedConstants with GLUE_STICK addresses and interfaces)
 import {GluedToolsERC20Min} from "../tools/GluedToolsERC20Min.sol";
 // Strategic import of proprietary mathematical operations library for precision calculations
 import {GluedMath} from "../libraries/GluedMath.sol";
@@ -70,8 +97,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
-// Glue interface imports
-import {IGlueStickERC20, IGlueERC20} from "../interfaces/IGlueERC20.sol";
+// Note: IGlueERC20, IGlueStickERC20 inherited from GluedToolsERC20Min -> GluedConstants
 
 abstract contract GluedToolsERC20 is GluedToolsERC20Min {
     using SafeERC20 for IERC20;
@@ -115,7 +141,7 @@ abstract contract GluedToolsERC20 is GluedToolsERC20Min {
     // initializeGlue, tryInitializeGlue, hasAGlue, getGlueBalances, getTotalSupply inherited from GluedToolsERC20Min
     // transferAsset, transferFromAsset, balanceOfAsset inherited from GluedToolsERC20Min
 
-    function getGlue(address stickyAsset) internal returns (address glue, bool isSticky) {
+    function _getGlue(address stickyAsset) internal returns (address glue, bool isSticky) {
         (isSticky, glue) = _isSticky(stickyAsset);
         if (!isSticky) {
             glue = _glueAnAsset(stickyAsset);
@@ -123,7 +149,7 @@ abstract contract GluedToolsERC20 is GluedToolsERC20Min {
         }
     }
 
-    function getCollateralbyAmount(address stickyAsset, uint256 amount, address[] memory collaterals) internal view returns (uint256[] memory balances) {
+    function _getCollateralbyAmount(address stickyAsset, uint256 amount, address[] memory collaterals) internal view returns (uint256[] memory balances) {
         (bool isSticky, address glue) = _isSticky(stickyAsset);
         if (!isSticky) {
             balances = new uint256[](collaterals.length);
@@ -146,7 +172,7 @@ abstract contract GluedToolsERC20 is GluedToolsERC20Min {
      * @param amounts Amounts to transfer
      * @param fullAmount Full amount to transfer
      */
-    function batchTransferAsset(address token, address[] memory to, uint256[] memory amounts, uint256 fullAmount) internal {
+    function _batchTransferAsset(address token, address[] memory to, uint256[] memory amounts, uint256 fullAmount) internal {
         uint256 amountRemaining = fullAmount;
 
         if (amounts.length == 0 || amounts.length != to.length) {
@@ -158,7 +184,7 @@ abstract contract GluedToolsERC20 is GluedToolsERC20Min {
                 amounts[i] = amountRemaining;
             }
 
-            transferAsset(token, to[i], amounts[i]);
+            _transferAsset(token, to[i], amounts[i]);
             amountRemaining -= amounts[i];
         }
     }
@@ -166,16 +192,16 @@ abstract contract GluedToolsERC20 is GluedToolsERC20Min {
     /**
      * @notice Transfers with balance check (for tax tokens)
      */
-    function transferAssetChecked(address token, address to, uint256 amount) internal returns (uint256 actualAmount) {
+    function _transferAssetChecked(address token, address to, uint256 amount) internal returns (uint256 actualAmount) {
         if (token == address(0)) {
             if (to != address(this)) {
                 Address.sendValue(payable(to), amount);
             }
             actualAmount = amount;
         } else {
-            uint256 balanceBefore = balanceOfAsset(token, to);
+            uint256 balanceBefore = _balanceOfAsset(token, to);
             IERC20(token).safeTransfer(to, amount);
-            uint256 balanceAfter = balanceOfAsset(token, to);
+            uint256 balanceAfter = _balanceOfAsset(token, to);
 
             require(balanceAfter > balanceBefore, "Transfer failed");
 
@@ -185,19 +211,19 @@ abstract contract GluedToolsERC20 is GluedToolsERC20Min {
 
     // ===== BURN FUNCTIONS =====
 
-    function burnAsset(address token, uint256 amount) internal {
-        address glue = initializeGlue(token);
-        transferAsset(token, glue, amount);
+    function _burnAsset(address token, uint256 amount) internal {
+        address glue = _initializeGlue(token);
+        _transferAsset(token, glue, amount);
     }
 
-    function burnAssetFrom(address token, address from, uint256 amount) internal {
-        address glue = initializeGlue(token);
-        transferFromAsset(token, from, glue, amount);
+    function _burnAssetFrom(address token, address from, uint256 amount) internal {
+        address glue = _initializeGlue(token);
+        _transferFromAsset(token, from, glue, amount);
     }
 
     // ===== APPROVAL & UNGLUE =====
 
-    function approveAsset(address token, address spender, uint256 amount) internal {
+    function _approveAsset(address token, address spender, uint256 amount) internal {
         if (token == address(0)) {
             return;
         } else {
@@ -205,9 +231,9 @@ abstract contract GluedToolsERC20 is GluedToolsERC20Min {
         }
     }
 
-    function unglueAsset(address token, uint256 amount, address[] memory collaterals, address recipient) internal {
-        address glue = initializeGlue(token);
-        approveAsset(token, glue, amount);
+    function _unglueAsset(address token, uint256 amount, address[] memory collaterals, address recipient) internal {
+        address glue = _initializeGlue(token);
+        _approveAsset(token, glue, amount);
         IGlueERC20(glue).unglue(collaterals, amount, recipient);
     }
     
@@ -216,47 +242,36 @@ abstract contract GluedToolsERC20 is GluedToolsERC20Min {
     /**
      * @notice Handles excess tokens/ETH by sending to glue contract
      */
-    function handleExcess(address token, uint256 amount, address glue) internal {
+    function _handleExcess(address token, uint256 amount, address glue) internal {
         if (amount > 0 && glue != address(0)) {
-            transferAsset(token, glue, amount);
+            _transferAsset(token, glue, amount);
         }
     }
 
-    function getTokenDecimals(address token) internal view returns (uint256 decimals) {
+    function _getTokenDecimals(address token) internal view returns (uint256 decimals) {
         return GluedMath.getDecimals(token);
     }
 
     /**
      * @notice Adjusts decimals between tokens using GluedMath
      */
-    function adjustDecimals(uint256 amount, address tokenIn, address tokenOut) internal view returns (uint256) {
+    function _adjustDecimals(uint256 amount, address tokenIn, address tokenOut) internal view returns (uint256) {
         return GluedMath.adjustDecimals(amount, tokenIn, tokenOut);
     }
 
     /**
      * @notice Wrapper for GluedMath.md512 - multiply-divide with full precision
      */
-    function md512(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
+    function _md512(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
         return GluedMath.md512(a, b, denominator);
     }
 
     /**
      * @notice Wrapper for GluedMath.md512Up - multiply-divide with full precision (rounds up)
      */
-    function md512Up(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
+    function _md512Up(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
         return GluedMath.md512Up(a, b, denominator);
     }
 
-    // ===== INTERNAL HELPER OVERRIDES =====
-    // Override to use GLUE_STICK_ERC20 constant
-
-    function _glueAnAsset(address stickyAsset) internal override returns (address glue) {
-        glue = GLUE_STICK_ERC20.applyTheGlue(stickyAsset);
-        return glue;
-    }
-
-    function _isSticky(address stickyAsset) internal view override returns (bool isSticky, address glue) {
-        (isSticky, glue) = GLUE_STICK_ERC20.isStickyAsset(stickyAsset);
-        return (isSticky, glue);
-    }
+    // All GluedToolsERC20Min functions inherited: _initializeGlue, _hasAGlue, _getGlueBalances, _getTotalSupply, _transferAsset, _transferFromAsset, _balanceOfAsset
 }

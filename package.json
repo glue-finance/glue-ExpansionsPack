@@ -7,13 +7,18 @@
     "./base/StickyAsset.sol": "./contracts/base/StickyAsset.sol",
     "./base/InitStickyAsset.sol": "./contracts/base/InitStickyAsset.sol",
     "./base/GluedLoanReceiver.sol": "./contracts/base/GluedLoanReceiver.sol",
+    "./base/GluedTools.sol": "./contracts/base/GluedTools.sol",
+    "./base/GluedToolsERC20.sol": "./contracts/base/GluedToolsERC20.sol",
+    "./tools/GluedToolsMin.sol": "./contracts/tools/GluedToolsMin.sol",
+    "./tools/GluedToolsERC20Min.sol": "./contracts/tools/GluedToolsERC20Min.sol",
     "./interfaces/IStickyAsset.sol": "./contracts/interfaces/IStickyAsset.sol",
     "./interfaces/IInitStickyAsset.sol": "./contracts/interfaces/IInitStickyAsset.sol",
     "./interfaces/IGlueERC20.sol": "./contracts/interfaces/IGlueERC20.sol",
     "./interfaces/IGlueERC721.sol": "./contracts/interfaces/IGlueERC721.sol",
     "./interfaces/IGluedHooks.sol": "./contracts/interfaces/IGluedHooks.sol",
     "./interfaces/IGluedLoanReceiver.sol": "./contracts/interfaces/IGluedLoanReceiver.sol",
-    "./libraries/GluedMath.sol": "./contracts/libraries/GluedMath.sol"
+    "./libraries/GluedMath.sol": "./contracts/libraries/GluedMath.sol",
+    "./libraries/GluedConstants.sol": "./contracts/libraries/GluedConstants.sol"
   },
   "files": [
     "contracts/**/*.sol",

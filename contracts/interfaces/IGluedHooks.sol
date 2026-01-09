@@ -28,7 +28,7 @@ pragma solidity ^0.8.28;
 
 /**
  * @title IGluedHooks
- * @author @BasedToschi
+ * @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
  * @notice Extension interface that defines callback mechanisms for Sticky Assets to interact with the Glue Protocol
  * @dev Provides a standardized set of methods that Sticky Assets must implement to receive and process callbacks
  * during critical operations like collateral ungluing and token burning. This interface enables advanced features

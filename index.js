@@ -4,10 +4,14 @@
 module.exports = {
   // Base contracts
   StickyAsset: './contracts/base/StickyAsset.sol',
+  InitStickyAsset: './contracts/base/InitStickyAsset.sol',
   GluedLoanReceiver: './contracts/base/GluedLoanReceiver.sol',
+  GluedTools: './contracts/base/GluedTools.sol',
+  GluedToolsERC20: './contracts/base/GluedToolsERC20.sol',
   
   // Interface contracts
   IStickyAsset: './contracts/interfaces/IStickyAsset.sol',
+  IInitStickyAsset: './contracts/interfaces/IInitStickyAsset.sol',
   IGlueERC20: './contracts/interfaces/IGlueERC20.sol', 
   IGlueERC721: './contracts/interfaces/IGlueERC721.sol',
   IGluedHooks: './contracts/interfaces/IGluedHooks.sol',
@@ -15,6 +19,11 @@ module.exports = {
   
   // Library contracts
   GluedMath: './contracts/libraries/GluedMath.sol',
+  GluedConstants: './contracts/libraries/GluedConstants.sol',
+  
+  // Tools (Minimal helpers)
+  GluedToolsMin: './contracts/tools/GluedToolsMin.sol',
+  GluedToolsERC20Min: './contracts/tools/GluedToolsERC20Min.sol',
   
   // Example contracts
   BasicStickyToken: './contracts/examples/BasicStickyToken.sol',

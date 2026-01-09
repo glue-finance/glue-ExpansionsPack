@@ -10,7 +10,7 @@
 ╚══════╝   ╚═╝   ╚═╝ ╚═════╝╚═╝  ╚═╝   ╚═╝       ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝   ╚═╝   
 
 @title Mock Sticky Asset Native Standard
-@author @BasedToschi
+@author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 @notice Mock implementation of the Sticky Asset Standard for testing
 @dev Identical to StickyAsset.sol but allows configurable glue stick addresses in constructor, with warnings only at the end
 */

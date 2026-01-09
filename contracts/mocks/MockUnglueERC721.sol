@@ -16,7 +16,7 @@
                                    ╚══════╝╚═╝  ╚═╝ ╚═════╝   ╚═╝  ╚══════╝ ╚═╝
 
 @title Mock Unglue ERC721 - Ultra Simple Testing Mock
-@author @BasedToschi
+@author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi
 @notice Ultra-simple mock for testing IGlueERC721.unglue() functionality with NFT tokenIds parameter
 @dev This mock implements the exact IGlueERC721.unglue() interface:
      - unglue(collaterals[], tokenIds[], recipient) - ERC721 style with tokenIds array parameter

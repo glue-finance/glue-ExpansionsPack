@@ -1,8 +1,35 @@
 // SPDX-License-Identifier: BUSL-1.1
 
 /**
+ * ⚠️  LICENSE NOTICE - BUSINESS SOURCE LICENSE 1.1 ⚠️
+ * 
+ * This contract is licensed under BUSL-1.1. You may use it freely as long as you:
+ * ✅ Do NOT modify the GLUE_STICK addresses in GluedConstants
+ * ✅ Maintain integration with official Glue Protocol addresses
+ * 
+ * ❌ Editing GLUE_STICK_ERC20 or GLUE_STICK_ERC721 addresses = LICENSE VIOLATION
+ * 
+ * See LICENSE file for complete terms.
+ */
+
+/**
+ ██████╗ ██╗     ██╗   ██╗███████╗██████╗                                              
+██╔════╝ ██║     ██║   ██║██╔════╝██╔══██╗                                             
+██║  ███╗██║     ██║   ██║█████╗  ██║  ██║                                             
+██║   ██║██║     ██║   ██║██╔══╝  ██║  ██║                                             
+╚██████╔╝███████╗╚██████╔╝███████╗██████╔╝                                             
+ ╚═════╝ ╚══════╝ ╚═════╝ ╚══════╝╚═════╝                                              
+████████╗ ██████╗  ██████╗ ██╗     ███████╗                                           
+╚══██╔══╝██╔═══██╗██╔═══██╗██║     ██╔════╝                                           
+   ██║   ██║   ██║██║   ██║██║     ███████╗                                           
+   ██║   ██║   ██║██║   ██║██║     ╚════██║                                           
+   ██║   ╚██████╔╝╚██████╔╝███████╗███████║                                           
+   ╚═╝    ╚═════╝  ╚═════╝ ╚══════╝╚══════╝                                           
+*/
+
+/**
  * @title GluedTools - Advanced Glue Protocol Development Kit
- * @author @BasedToschi - Glue Finance
+ * @author La-Li-Lu-Le-Lo (@lalilulel0z) formerly BasedToschi - Glue Finance
  * 
  * @notice The complete advanced toolkit for building sophisticated DeFi applications on top of Glue Protocol
  * 
@@ -55,7 +82,7 @@
 
 pragma solidity ^0.8.28;
 
-// Base minimal glue tools
+// Base minimal glue tools (also brings in GluedConstants with GLUE_STICK addresses and interfaces)
 import {GluedToolsMin} from "../tools/GluedToolsMin.sol";
 // Strategic import of proprietary mathematical operations library for precision calculations
 import {GluedMath} from "../libraries/GluedMath.sol";
@@ -66,9 +93,7 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {Address} from "@openzeppelin/contracts/utils/Address.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol";
-// Glue interfaces for extended operations
-import {IGlueStickERC20, IGlueERC20} from "../interfaces/IGlueERC20.sol";
-import {IGlueStickERC721, IGlueERC721} from "../interfaces/IGlueERC721.sol";
+// Note: IGlueERC20, IGlueERC721, IGlueStickERC20, IGlueStickERC721 inherited from GluedToolsMin -> GluedConstants
 
 
 abstract contract GluedTools is GluedToolsMin {
@@ -80,18 +105,7 @@ abstract contract GluedTools is GluedToolsMin {
     using GluedMath for uint256;
 
     // ===== CONSTANTS =====
-    
-    /// @notice Precision for percentage and ratio calculations
-    uint256 internal constant PRECISION = 1e18;
-
-    address internal constant DEAD_ADDRESS = 0x000000000000000000000000000000000000dEaD;
-
-    // ===== GLUE PROTOCOL INTEGRATION =====
-    // Core Glue Protocol contract reference - immutable across all networks
-    IGlueStickERC20 internal constant GLUE_STICK_ERC20 = IGlueStickERC20(0x5fEe29873DE41bb6bCAbC1E4FB0Fc4CB26a7Fd74);
-
-    // GlueStickERC721 contract - immutable across networks
-    IGlueStickERC721 internal constant GLUE_STICK_ERC721 = IGlueStickERC721(0xe9B08D7dC8e44F1973269E7cE0fe98297668C257);
+    // Constants (PRECISION, ETH_ADDRESS, DEAD_ADDRESS, GLUE_STICK addresses) inherited from GluedToolsMin -> GluedConstants
 
     /**
     * @notice Reentrancy guard using transient storage (EIP-1153)
@@ -118,7 +132,7 @@ abstract contract GluedTools is GluedToolsMin {
     // ===== EXTENDED GLUE FUNCTIONS =====
     // initializeGlue, hasAGlue, getGlueBalances, getTotalSupply inherited from GluedToolsMin
 
-    function getGlue(address stickyAsset, bool fungible) internal returns (address glue, bool isSticky) {
+    function _getGlue(address stickyAsset, bool fungible) internal returns (address glue, bool isSticky) {
         (isSticky, glue) = _isSticky(stickyAsset, fungible);
         if (!isSticky) {
             glue = _glueAnAsset(stickyAsset, fungible);
@@ -131,7 +145,7 @@ abstract contract GluedTools is GluedToolsMin {
 
     // getTotalSupply inherited from GluedToolsMin
 
-    function getCollateralbyAmount(address stickyAsset, uint256 amount, address[] memory collaterals, bool fungible) internal view returns (uint256[] memory balances) {
+    function _getCollateralbyAmount(address stickyAsset, uint256 amount, address[] memory collaterals, bool fungible) internal view returns (uint256[] memory balances) {
         (bool isSticky, address glue) = _isSticky(stickyAsset, fungible);
         if (!isSticky) {
             for (uint256 i = 0; i < collaterals.length; i++) {
@@ -165,7 +179,7 @@ abstract contract GluedTools is GluedToolsMin {
      * @param fungible Whether the asset is fungible
      */
 
-    function batchTransferAsset(address token, address[] memory to, uint256[] memory amounts, uint256[] memory tokenIDs, uint256 fullAmount, bool fungible) internal {
+    function _batchTransferAsset(address token, address[] memory to, uint256[] memory amounts, uint256[] memory tokenIDs, uint256 fullAmount, bool fungible) internal {
 
         if (fungible) {
 
@@ -195,7 +209,7 @@ abstract contract GluedTools is GluedToolsMin {
                         amountPerRecipient = amountRemaining;
                     }
 
-                    transferAsset(token, to[i], amountPerRecipient, new uint256[](0), true);
+                    _transferAsset(token, to[i], amountPerRecipient, new uint256[](0), true);
                     amountRemaining -= amountPerRecipient;
                 }
             } else {
@@ -204,7 +218,7 @@ abstract contract GluedTools is GluedToolsMin {
                         amounts[i] = amountRemaining;
                     }
 
-                    transferAsset(token, to[i], amounts[i], new uint256[](0), true);
+                    _transferAsset(token, to[i], amounts[i], new uint256[](0), true);
                     amountRemaining -= amounts[i];
                 }
             }
@@ -229,14 +243,14 @@ abstract contract GluedTools is GluedToolsMin {
             for (uint256 i = 0; i < tokenIDs.length; i++) {
                 uint256[] memory singleTokenId = new uint256[](1);
                 singleTokenId[0] = tokenIDs[i];
-                transferAsset(token, to[i], 0, singleTokenId, false);
+                _transferAsset(token, to[i], 0, singleTokenId, false);
             }
         }
     }
 
     // transferFromAsset inherited from GluedToolsMin
 
-    function transferAssetChecked(address token, address to, uint256 amount, uint256[] memory tokenIDs, bool fungible) internal returns (uint256 actualAmount) {
+    function _transferAssetChecked(address token, address to, uint256 amount, uint256[] memory tokenIDs, bool fungible) internal returns (uint256 actualAmount) {
         
         if (fungible && amount == 0) {
             return 0;
@@ -260,9 +274,9 @@ abstract contract GluedTools is GluedToolsMin {
                 }
 
                 // Handle ERC20 token transfer
-                uint256 balanceBefore = balanceOfAsset(token, to, fungible);
+                uint256 balanceBefore = _balanceOfAsset(token, to, fungible);
                 IERC20(token).safeTransfer(to, amount);
-                uint256 balanceAfter = balanceOfAsset(token, to, fungible);
+                uint256 balanceAfter = _balanceOfAsset(token, to, fungible);
 
                 require (balanceAfter > balanceBefore, "Transfer failed");
 
@@ -281,56 +295,24 @@ abstract contract GluedTools is GluedToolsMin {
         }
     }
 
-    function burnAsset(address token, uint256 amount, bool fungible, uint256[] memory tokenIDs) internal {
+    function _burnAsset(address token, uint256 amount, bool fungible, uint256[] memory tokenIDs) internal {
         
-        address glue = initializeGlue(token, fungible);
+        address glue = _initializeGlue(token, fungible);
             
-        transferAsset(token, glue, amount, tokenIDs, fungible);
+        _transferAsset(token, glue, amount, tokenIDs, fungible);
     }
 
-    function burnAssetFrom(address token, address from, uint256 amount, bool fungible, uint256[] memory tokenIDs) internal {
+    function _burnAssetFrom(address token, address from, uint256 amount, bool fungible, uint256[] memory tokenIDs) internal {
 
-        address glue = initializeGlue(token, fungible);
+        address glue = _initializeGlue(token, fungible);
 
-        transferFromAsset(token, from, glue, amount, tokenIDs, fungible);
+        _transferFromAsset(token, from, glue, amount, tokenIDs, fungible);
     }
     
-    // ===== PASS-THROUGH WRAPPERS =====
-    // These enable calling as GluedTools.functionName() from inheriting contracts
-    
-    function initializeGlue(address stickyAsset, bool fungible) internal override returns (address glue) {
-        return GluedToolsMin.initializeGlue(stickyAsset, fungible);
-    }
+    // ===== ADDITIONAL HELPER FUNCTIONS =====
+    // These are GluedTools-specific functions not in GluedToolsMin
 
-    function hasAGlue(address stickyAsset, bool fungible) internal view override returns (bool isSticky) {
-        return GluedToolsMin.hasAGlue(stickyAsset, fungible);
-    }
-
-    function getGlueBalances(address stickyAsset, address[] memory collaterals, bool fungible) internal view override returns (uint256[] memory balances) {
-        return GluedToolsMin.getGlueBalances(stickyAsset, collaterals, fungible);
-    }
-
-    function getTotalSupply(address stickyAsset, bool fungible) internal view override returns (uint256 totalSupply) {
-        return GluedToolsMin.getTotalSupply(stickyAsset, fungible);
-    }
-
-    function transferAsset(address token, address to, uint256 amount, uint256[] memory tokenIDs, bool fungible) internal override {
-        GluedToolsMin.transferAsset(token, to, amount, tokenIDs, fungible);
-    }
-
-    function transferFromAsset(address token, address from, address to, uint256 amount, uint256[] memory tokenIDs, bool fungible) internal override returns (uint256 actualAmount) {
-        return GluedToolsMin.transferFromAsset(token, from, to, amount, tokenIDs, fungible);
-    }
-
-    function balanceOfAsset(address token, address account, bool fungible) internal view override returns (uint256) {
-        return GluedToolsMin.balanceOfAsset(token, account, fungible);
-    }
-
-    function getNFTOwner(address token, uint256 tokenId) internal view override returns (address owner) {
-        return GluedToolsMin.getNFTOwner(token, tokenId);
-    }
-
-    function getTokenDecimals(address token, bool fungible) internal view returns (uint8 decimals) {
+    function _getTokenDecimals(address token, bool fungible) internal view returns (uint8 decimals) {
         if (token == address(0)) {
             return 18;
         } else {
@@ -348,9 +330,9 @@ abstract contract GluedTools is GluedToolsMin {
      * @param amount Excess amount
      * @param glue Glue contract address
      */
-    function handleExcess(address token, uint256 amount, address glue) internal {
+    function _handleExcess(address token, uint256 amount, address glue) internal {
         if (amount > 0 && glue != address(0)) {
-            transferAsset(token, glue, amount, new uint256[](0), false);
+            _transferAsset(token, glue, amount, new uint256[](0), false);
         }
     }
 
@@ -362,7 +344,7 @@ abstract contract GluedTools is GluedToolsMin {
      * @param tokenOut Output token address for decimal lookup
      * @return Adjusted amount accounting for decimal precision differences
      */
-    function adjustDecimals(uint256 amount, address tokenIn, address tokenOut) internal view returns (uint256) {
+    function _adjustDecimals(uint256 amount, address tokenIn, address tokenOut) internal view returns (uint256) {
         // Delegate to GluedMath library for consistent decimal handling across all operations
         return GluedMath.adjustDecimals(amount, tokenIn, tokenOut);
     }
@@ -375,7 +357,7 @@ abstract contract GluedTools is GluedToolsMin {
      * @param denominator The divisor value
      * @return result The result of (a * b) / denominator with full precision
      */
-    function md512(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
+    function _md512(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
         // Forward to GluedMath implementation for consistent precision handling
         return GluedMath.md512(a, b, denominator);
     }
@@ -388,31 +370,11 @@ abstract contract GluedTools is GluedToolsMin {
      * @param denominator The divisor value
      * @return result The result of (a * b) / denominator rounded up to prevent underpayment
      */
-    function md512Up(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
+    function _md512Up(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
         // Forward to GluedMath implementation ensuring upward rounding for safety
         return GluedMath.md512Up(a, b, denominator);
     }
 
     // onERC721Received inherited from GluedToolsMin
-
-    // ===== INTERNAL HELPER OVERRIDES =====
-    // Override to use GLUE_STICK_ERC20/GLUE_STICK_ERC721 constants
-
-    function _glueAnAsset(address stickyAsset, bool fungible) internal override returns (address glue) {
-        if (fungible) {
-            glue = GLUE_STICK_ERC20.applyTheGlue(stickyAsset);
-        } else {
-            glue = GLUE_STICK_ERC721.applyTheGlue(stickyAsset);
-        }
-        return glue;
-    }
-
-    function _isSticky(address stickyAsset, bool fungible) internal view override returns (bool isSticky, address glue) {
-        if (fungible) {
-            (isSticky, glue) = GLUE_STICK_ERC20.isStickyAsset(stickyAsset);
-        } else {
-            (isSticky, glue) = GLUE_STICK_ERC721.isStickyAsset(stickyAsset);
-        }
-        return (isSticky, glue);
-    }
+    // All GluedToolsMin functions inherited: _initializeGlue, _hasAGlue, _getGlueBalances, _getTotalSupply, _transferAsset, _transferFromAsset, _balanceOfAsset, _getNFTOwner
 }
