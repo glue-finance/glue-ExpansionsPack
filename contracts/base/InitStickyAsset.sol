@@ -47,10 +47,89 @@ import {GluedMath} from '../libraries/GluedMath.sol';
 /**
  * @title Sticky Asset Native Standard - Initializable Version
  * @author @BasedToschi
- * @notice Minimal abstract contract for Glue Protocol Native Assets integration with factory pattern support
- * @dev This provides core interactions with the Glue Protocol that can be used
- * by both ERC20 and ERC721 implementations with clone/proxy support
- * @dev Use this version for factory patterns that deploy via clones or minimal proxies
+ * 
+ * @notice Create proxy/clone-friendly tokens that natively integrate with Glue Protocol
+ * 
+ * @dev **InitStickyAsset is for CREATING sticky assets using factory/proxy patterns:**
+ * 
+ * 🎯 **Use InitStickyAsset When:**
+ * - ✅ Building a factory that deploys sticky assets via minimal proxies (clones)
+ * - ✅ Creating upgradeable sticky assets (UUPS/Transparent proxies)
+ * - ✅ Deploying many similar tokens gas-efficiently (clone pattern)
+ * - ✅ Need to defer glue creation until after deployment
+ * - ✅ Building a launchpad or token factory platform
+ * 
+ * ❌ **Do NOT use InitStickyAsset if:**
+ * - You want standard deployment → Use StickyAsset.sol (simpler, uses constructor)
+ * - You want to build ON TOP of Glue (not create an asset) → Use GluedTools or GluedToolsERC20
+ * - You just want to interact with existing glued assets → Use GluedToolsMin
+ * 
+ * 🔧 **What InitStickyAsset Provides:**
+ * - ✅ Two-step initialization: Deploy → initializeStickyAsset()
+ * - ✅ Clone-friendly: Glue created per-instance, not in constructor
+ * - ✅ Initialization guard: Can only be initialized once
+ * - ✅ Native unglue() function callable directly on your token
+ * - ✅ Flash loan support through flashLoan() function
+ * - ✅ Hook system for custom logic (sticky hooks + collateral hooks)
+ * - ✅ Read functions for collateral amounts, balances, and supply
+ * - ✅ EIP-7572 contract URI support for metadata
+ * - ✅ Built-in reentrancy protection (EIP-1153)
+ * - ✅ GluedMath helpers for precision calculations
+ * 
+ * 📦 **Initialization Flow:**
+ * 1. Deploy the contract (constructor sets GLUE = address(0))
+ * 2. Call initializeStickyAsset() which:
+ *    - Creates the glue contract for THIS specific instance
+ *    - Sets GLUE, FUNGIBLE, and HOOK flags
+ *    - Approves the glue to spend tokens (max approval)
+ *    - Sets the contract URI for metadata
+ *    - Emits StickyAssetInitialized event
+ * 3. The contract is now ready to use
+ * 
+ * 🎨 **Customization:**
+ * Override these internal functions to add custom behavior:
+ * - _calculateStickyHookSize(): Calculate hook size for sticky tokens
+ * - _calculateCollateralHookSize(): Calculate hook size for collateral tokens
+ * - _processStickyHook(): Execute logic when sticky tokens are hooked
+ * - _processCollateralHook(): Execute logic when collateral is hooked
+ * 
+ * 💡 **Helper Tools Available:**
+ * - _md512(): High-precision multiply-divide operations
+ * - _adjustDecimals(): Convert amounts between different token decimals
+ * - _updateContractURI(): Update the EIP-7572 contract URI
+ * - isInitialized(): Check if the contract has been initialized
+ * 
+ * 🛡️ **Safety Features:**
+ * - onlyInitialized modifier: Prevents operations before initialization
+ * - AlreadyInitialized error: Prevents double initialization
+ * - NotInitialized error: Prevents use before initialization
+ * - InitializationFailed error: Catches glue creation failures
+ * 
+ * ⚠️ **Important License Note:**
+ * DO NOT modify the GLUE_STICK_ERC20 or GLUE_STICK_ERC721 addresses. Doing so violates
+ * the BUSL-1.1 license and breaks protocol compatibility.
+ * 
+ * 🆚 **InitStickyAsset vs StickyAsset:**
+ * - **InitStickyAsset**: Uses initialize(), creates glue post-deployment (proxy/clone pattern)
+ * - **StickyAsset**: Uses constructor, creates glue at deployment (standard pattern)
+ * 
+ * 📝 **Example Factory Pattern:**
+ * ```solidity
+ * contract TokenFactory {
+ *     address public implementation;
+ *     
+ *     function createToken(string memory uri, bool[2] memory config) external returns (address) {
+ *         address clone = Clones.clone(implementation);
+ *         InitStickyAsset(clone).initializeStickyAsset(uri, config);
+ *         return clone;
+ *     }
+ * }
+ * ```
+ * 
+ * 📚 **Related Contracts:**
+ * - For building applications that interact with glued assets: See GluedTools, GluedToolsERC20
+ * - For minimal helper functions: See GluedToolsMin, GluedToolsERC20Min
+ * - For standard (non-proxy) sticky assets: See StickyAsset
  */
 abstract contract InitStickyAsset is IInitStickyAsset {
 

@@ -41,9 +41,64 @@ import {GluedMath} from '../libraries/GluedMath.sol';
 /**
  * @title Sticky Asset Native Standard
  * @author @BasedToschi
- * @notice Minimal abstract contract for Glue Protocol Native Assets integration
- * @dev This provides core interactions with the Glue Protocol that can be used
- * by both ERC20 and ERC721 implementations with minimal overhead
+ * 
+ * @notice Create tokens that natively integrate with Glue Protocol - the easiest way to build sticky assets
+ * 
+ * @dev **StickyAsset is for CREATING sticky assets that integrate natively with Glue Protocol:**
+ * 
+ * 🎯 **Use StickyAsset When:**
+ * - ✅ Creating a new ERC20 or ERC721 token that should integrate with Glue Protocol
+ * - ✅ Building tokens with automatic collateral backing via Glue
+ * - ✅ Implementing custom hook logic for ungluing operations
+ * - ✅ Creating tokens with native flash loan support
+ * - ✅ You want immutable glue addresses set at deployment (non-proxy pattern)
+ * 
+ * ❌ **Do NOT use StickyAsset if:**
+ * - You want to build ON TOP of Glue (not create an asset) → Use GluedTools or GluedToolsERC20
+ * - You need factory/clone pattern → Use InitStickyAsset.sol for proxy-friendly deployment
+ * - You just want to interact with existing glued assets → Use GluedToolsMin for minimal integration
+ * 
+ * 🔧 **What StickyAsset Provides:**
+ * - ✅ Automatic glue creation and approval in constructor
+ * - ✅ Native unglue() function callable directly on your token
+ * - ✅ Flash loan support through flashLoan() function
+ * - ✅ Hook system for custom logic (sticky hooks + collateral hooks)
+ * - ✅ Read functions for collateral amounts, balances, and supply
+ * - ✅ EIP-7572 contract URI support for metadata
+ * - ✅ Built-in reentrancy protection (EIP-1153)
+ * - ✅ GluedMath helpers for precision calculations
+ * 
+ * 📦 **Constructor Setup:**
+ * The constructor automatically:
+ * - Creates the glue contract for your token
+ * - Sets immutable GLUE, FUNGIBLE, and HOOK flags
+ * - Approves the glue to spend your tokens (max approval)
+ * - Sets the contract URI for metadata
+ * 
+ * 🎨 **Customization:**
+ * Override these internal functions to add custom behavior:
+ * - _calculateStickyHookSize(): Calculate hook size for sticky tokens
+ * - _calculateCollateralHookSize(): Calculate hook size for collateral tokens
+ * - _processStickyHook(): Execute logic when sticky tokens are hooked
+ * - _processCollateralHook(): Execute logic when collateral is hooked
+ * 
+ * 💡 **Helper Tools Available:**
+ * - _md512(): High-precision multiply-divide operations
+ * - _adjustDecimals(): Convert amounts between different token decimals
+ * - _updateContractURI(): Update the EIP-7572 contract URI
+ * 
+ * ⚠️ **Important License Note:**
+ * DO NOT modify the GLUE_STICK_ERC20 or GLUE_STICK_ERC721 addresses. Doing so violates
+ * the BUSL-1.1 license and breaks protocol compatibility.
+ * 
+ * 🆚 **StickyAsset vs InitStickyAsset:**
+ * - **StickyAsset**: Uses constructor, creates glue at deployment (standard pattern)
+ * - **InitStickyAsset**: Uses initialize(), creates glue post-deployment (proxy/clone pattern)
+ * 
+ * 📚 **Related Contracts:**
+ * - For building applications that interact with glued assets: See GluedTools, GluedToolsERC20
+ * - For minimal helper functions: See GluedToolsMin, GluedToolsERC20Min
+ * - For proxy-friendly sticky assets: See InitStickyAsset
  */
 abstract contract StickyAsset is IStickyAsset {
 
