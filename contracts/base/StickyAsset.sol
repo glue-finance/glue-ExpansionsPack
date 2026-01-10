@@ -46,16 +46,17 @@ import {IGlueStickERC721, IGlueERC721} from '../interfaces/IGlueERC721.sol';
 import {IStickyAsset} from '../interfaces/IStickyAsset.sol';
 
 /**
-@dev Library providing high-precision mathematical operations, decimal conversion, and rounding utilities for token calculations
+@dev Complete Glue Protocol helper tools base contract
+@dev Provides utility functions for transfers, balance tracking, glue interactions, and GluedMath
+@dev Also brings in GluedConstants (GLUE_STICK addresses, PRECISION, ETH_ADDRESS, etc.)
+@dev Includes nnrtnt reentrancy guard, _md512, _md512Up, _adjustDecimals and all helper functions
 */
-import {GluedMath} from '../libraries/GluedMath.sol';
+import {GluedToolsBase} from '../tools/GluedToolsBase.sol';
 
 /**
-@dev Minimal Glue Protocol helper tools for advanced DeFi operations
-@dev Provides utility functions for transfers, balance tracking, and glue interactions
-@dev Also brings in GluedConstants (GLUE_STICK addresses, PRECISION, ETH_ADDRESS, etc.)
+@dev Library providing high-precision mathematical operations (used directly for static calls)
 */
-import {GluedToolsMin} from '../tools/GluedToolsMin.sol';
+import {GluedMath} from '../libraries/GluedMath.sol';
 
 /**
  * @title Sticky Asset Native Standard
@@ -75,7 +76,7 @@ import {GluedToolsMin} from '../tools/GluedToolsMin.sol';
  * ❌ **Do NOT use StickyAsset if:**
  * - You want to build ON TOP of Glue (not create an asset) → Use GluedTools or GluedToolsERC20
  * - You need factory/clone pattern → Use InitStickyAsset.sol for proxy-friendly deployment
- * - You just want to interact with existing glued assets → Use GluedToolsMin for minimal integration
+ * - You just want to interact with existing glued assets → Use GluedToolsBase for base integration
  * 
  * 🔧 **What StickyAsset Provides:**
  * - ✅ Automatic glue creation and approval in constructor
@@ -116,10 +117,10 @@ import {GluedToolsMin} from '../tools/GluedToolsMin.sol';
  * 
  * 📚 **Related Contracts:**
  * - For building applications that interact with glued assets: See GluedTools, GluedToolsERC20
- * - For minimal helper functions: See GluedToolsMin, GluedToolsERC20Min
+ * - For base helper functions: See GluedToolsBase, GluedToolsERC20Base
  * - For proxy-friendly sticky assets: See InitStickyAsset
  */
-abstract contract StickyAsset is IStickyAsset, GluedToolsMin {
+abstract contract StickyAsset is IStickyAsset, GluedToolsBase {
 
 /**
 --------------------------------------------------------------------------------------------------------
@@ -131,13 +132,12 @@ abstract contract StickyAsset is IStickyAsset, GluedToolsMin {
 01110101 01110000 
 */
 
-    // GluedMath for calculations
-    using GluedMath for uint256;
-
     // █████╗ Core State and Constants
     // ╚════╝ All variables and constants are declared internal for derived contract access
     //        Inheriting contracts can leverage these properties to build custom logic
-    // Constants (PRECISION, ETH_ADDRESS, DEAD_ADDRESS, GLUE_STICK addresses) inherited from GluedToolsMin -> GluedConstants
+    // Constants (PRECISION, ETH_ADDRESS, DEAD_ADDRESS, GLUE_STICK addresses) inherited from GluedToolsBase -> GluedConstants
+    // Math functions (_md512, _md512Up, _adjustDecimals) inherited from GluedToolsBase
+    // Reentrancy guard (nnrtnt modifier) inherited from GluedToolsBase
     
     /// @notice Address of the Glue contract for the token
     address internal immutable GLUE;
@@ -205,28 +205,6 @@ abstract contract StickyAsset is IStickyAsset, GluedToolsMin {
             if(!approveAllSuccess) {
                 revert ApproveFailed();
             }
-        }
-    }
-
-    /**
-    * @notice Reentrancy guard using transient storage (EIP-1153)
-    * @dev Gas-efficient protection for functions with external calls
-    */
-    modifier nnrtnt() {
-        bytes32 slot = keccak256(abi.encodePacked(address(this), "ReentrancyGuard"));
-        
-        assembly {
-            if tload(slot) { 
-                mstore(0x00, 0x3ee5aeb5) // ReentrancyGuardReentrantCall()
-                revert(0x1c, 0x04)
-            }
-            tstore(slot, 1)
-        }
-        
-        _;
-        
-        assembly {
-            tstore(slot, 0)
         }
     }
 
@@ -547,6 +525,7 @@ abstract contract StickyAsset is IStickyAsset, GluedToolsMin {
 
     // █████╗ Tools to
     // ╚════╝ build easier
+    // Note: _md512, _md512Up, _adjustDecimals are inherited from GluedToolsBase
 
     /**
      * @notice Function to manage the EIP-7572 URI changes
@@ -555,61 +534,6 @@ abstract contract StickyAsset is IStickyAsset, GluedToolsMin {
 
         // Update the contract URI
         _contractURI = newURI;
-    }
-
-    /**
-    * @notice Performs a multiply-divide operation with full precision.
-    * @dev Calculates floor(a * b / denominator) with full precision, using 512-bit intermediate values.
-    * Throws if the result overflows a uint256 or if the denominator is zero.
-    *
-    * @param a The multiplicand.
-    * @param b The multiplier.
-    * @param denominator The divisor.
-    * @return result The result of the operation.
-    *
-    * Use case: When you need to calculate the result of a multiply-divide operation with full precision.
-    */
-    function _md512(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
-
-        // Return the result of the operation
-        return GluedMath.md512(a, b, denominator);
-    }
-
-    /**
-    * @notice Performs a multiply-divide operation with full precision and rounding up.
-    * @dev Calculates ceil(a * b / denominator) with full precision, using 512-bit intermediate values.
-    * Throws if the result overflows a uint256 or if the denominator is zero.
-    *
-    * @param a The multiplicand.
-    * @param b The multiplier.
-    * @param denominator The divisor.
-    * @return result The result of the operation, rounded up to the nearest integer.
-    *
-    * Use case: When you need to calculate the result of a multiply-divide operation with full precision and rounding up.
-    */
-    function _md512Up(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
-
-        // Return the result of the operation rounding up
-        return GluedMath.md512Up(a, b, denominator);
-    }
-
-    /**
-    * @notice Adjusts decimal places between different token decimals. With this function,
-    * you can get the right ammount of tokenOut from a given tokenIn address and amount
-    * espressed in tokenIn's decimals.
-    * @dev If one of the tokens is ETH, you can use the address(0) as the token address.
-    *
-    * @param amount The amount to adjust
-    * @param tokenIn The address of the input token
-    * @param tokenOut The address of the output token
-    * @return adjustedAmount The adjusted amount with correct decimal places
-    *
-    * Use case: When you need to adjust the decimal places operating with two different tokens
-    */
-    function _adjustDecimals(uint256 amount,address tokenIn,address tokenOut) internal view returns (uint256 adjustedAmount) {
-
-        // Return the adjusted amount
-        return GluedMath.adjustDecimals(amount, tokenIn, tokenOut);
     }
 
 /**

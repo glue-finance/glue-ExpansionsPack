@@ -23,7 +23,7 @@ This isn't just an update—it's a **complete rethinking** of how developers sho
                           ↓ inherited by ↓
         ┌─────────────────────────────────────────┐
         │                                         │
-   GluedToolsMin                        GluedToolsERC20Min
+   GluedToolsBase                        GluedToolsERC20Base
         │                                         │
         ↓                                         ↓
    GluedTools                            GluedToolsERC20
@@ -51,7 +51,7 @@ Total: 790 lines (200 lines of pure duplication!)
 
 Glue v2.0:
 ├── GluedConstants: 86 lines (ONE source of truth)
-├── GluedToolsMin: 296 lines (reusable helpers)
+├── GluedToolsBase: 296 lines (reusable helpers)
 ├── Contract A: 120 lines (uses inheritance)
 ├── Contract B: 100 lines (uses inheritance)
 ├── Contract C: 130 lines (uses inheritance)
@@ -75,11 +75,11 @@ We provide **4 levels** of tooling so you only import what you need:
 Level 1: GluedConstants (86 lines)
   └─ Just the basics: Addresses, constants, interfaces
   
-Level 2: GluedToolsMin (296 lines)  
-  └─ + Safe transfers, glue initialization, balance tracking
+Level 2: GluedToolsBase (606 lines)  
+  └─ + Safe transfers, glue initialization, balance tracking, nnrtnt guard, GluedMath, burns
   
-Level 3: GluedTools (355 lines)
-  └─ + GluedMath, batch operations, burn functions, decimal adjustments
+Level 3: GluedTools (186 lines)
+  └─ + Batch operations, handleExcess (most features now in Base)
   
 Level 4: Your Custom Contract
   └─ + Your unique business logic
@@ -87,7 +87,7 @@ Level 4: Your Custom Contract
 
 **Traditional DeFi:** Force everyone to use a massive 2000+ line base contract even for simple use cases.
 
-**Glue v2.0:** Choose your complexity level. Build a simple bot? Use GluedToolsMin (296 lines). Build complex strategies? Use GluedTools (355 lines).
+**Glue v2.0:** Choose your complexity level. GluedToolsBase has everything you need. GluedTools only adds batch operations.
 
 **Gas savings:** 20-30% smaller bytecode for most contracts!
 
@@ -166,7 +166,7 @@ function transferTaxToken(address token, address to, uint256 amount) internal {
 }
 
 // ✅ Glue v2.0 approach (solved once, works everywhere)
-contract MyContract is GluedToolsMin {
+contract MyContract is GluedToolsBase {
     function myFunction() internal {
         uint256 actualReceived = _transferFromAsset(token, from, to, amount, new uint256[](0), true);
         // Handles tax tokens, SafeERC20, ETH, NFTs, reverts on failure, all edge cases
@@ -450,16 +450,16 @@ Join our [Discord](https://discord.gg/glue-finance) and request it! We're active
 
 ### **New Contracts:**
 1. **GluedConstants** - Single source of truth for all protocol constants
-2. **GluedToolsMin** - Minimal helper toolkit (296 lines, zero dependencies)
-3. **GluedToolsERC20Min** - ERC20-optimized minimal toolkit (smaller bytecode)
-4. **GluedTools** - Full-featured toolkit with GluedMath
-5. **GluedToolsERC20** - ERC20-optimized full toolkit
+2. **GluedToolsBase** - Complete base toolkit with GluedMath, nnrtnt guard, burns, and all helpers
+3. **GluedToolsERC20Base** - ERC20-optimized base toolkit (smaller bytecode, same features)
+4. **GluedTools** - Extends GluedToolsBase with batch operations
+5. **GluedToolsERC20** - Extends GluedToolsERC20Base with batch operations
 6. **IGlueMin** - Minimal interface for lightweight integrations
 
 ### **Updated Contracts:**
-1. **StickyAsset** - Now inherits GluedToolsMin (300 lines removed!)
+1. **StickyAsset** - Now inherits GluedToolsBase (duplicated code removed!)
 2. **InitStickyAsset** - Proxy-friendly version with same improvements
-3. **GluedLoanReceiver** - Now inherits GluedToolsERC20Min
+3. **GluedLoanReceiver** - Now inherits GluedToolsERC20Base (duplicated code removed!)
 
 ### **Documentation:**
 1. **IMPROVEMENTS_V1.9.md** - Detailed changelog
@@ -541,7 +541,7 @@ contract MyBot is GluedLoanReceiver {
 
 ## 🎨 The Helper Function Library
 
-### **GluedToolsMin Functions** (Inherited by everything)
+### **GluedToolsBase Functions** (Inherited by everything)
 
 ```solidity
 // Initialize glue for any asset
@@ -731,7 +731,7 @@ GluedConstants (source of truth)
 ### **The Helper Function Pattern**
 
 ```
-GluedToolsMin (base implementations with _ prefix)
+GluedToolsBase (base implementations with _ prefix)
     ├─ _initializeGlue()
     ├─ _transferAsset()
     ├─ _balanceOfAsset()
@@ -796,7 +796,7 @@ GluedToolsMin (base implementations with _ prefix)
 
 Benefits you get automatically:
 - Smaller bytecode (27% reduction)
-- Access to GluedToolsMin functions
+- Access to GluedToolsBase functions
 - Better documentation
 - Professional headers
 - License clarity
@@ -817,9 +817,9 @@ contract MyRouter {
 
 **After:**
 ```solidity
-import "@glue-finance/expansions-pack/tools/GluedToolsMin.sol";
+import "@glue-finance/expansions-pack/tools/GluedToolsBase.sol";
 
-contract MyRouter is GluedToolsMin {
+contract MyRouter is GluedToolsBase {
     // GLUE_STICK_ERC20, PRECISION, etc. inherited
     // _transferAsset, _initializeGlue, etc. available
     
@@ -840,43 +840,46 @@ contract MyRouter is GluedToolsMin {
 ✅ IGlueERC20/721 interfaces  
 ✅ License protection
 
-### **GluedToolsMin** (296 lines) = GluedConstants +
+### **GluedToolsBase** (606 lines) = GluedConstants +
+✅ nnrtnt (EIP-1153 reentrancy guard)  
 ✅ _initializeGlue()  
 ✅ _tryInitializeGlue()  
+✅ _getGlue()  
 ✅ _hasAGlue()  
 ✅ _getGlueBalances()  
 ✅ _getTotalSupply()  
+✅ _getCollateralbyAmount()  
 ✅ _transferAsset()  
 ✅ _transferFromAsset()  
-✅ _balanceOfAsset()  
-✅ _getNFTOwner()  
-✅ onERC721Received()
-
-### **GluedTools** (355 lines) = GluedToolsMin +
-✅ Everything from GluedToolsMin  
+✅ _transferAssetChecked()  
 ✅ _burnAsset()  
 ✅ _burnAssetFrom()  
-✅ _batchTransferAsset()  
-✅ _transferAssetChecked()  
-✅ _getCollateralbyAmount()  
-✅ _getGlue()  
+✅ _balanceOfAsset()  
+✅ _getNFTOwner()  
 ✅ _getTokenDecimals()  
-✅ _handleExcess()  
-✅ _adjustDecimals()  
 ✅ _md512()  
-✅ _md512Up()
+✅ _md512Up()  
+✅ _adjustDecimals()  
+✅ onERC721Received()
 
-### **GluedToolsERC20Min** (244 lines) = GluedConstants +
-✅ ERC20-only versions of all Min functions  
+### **GluedTools** (186 lines) = GluedToolsBase +
+✅ Everything from GluedToolsBase  
+✅ _batchTransferAsset()  
+✅ _handleExcess()
+
+### **GluedToolsERC20Base** (486 lines) = GluedConstants +
+✅ nnrtnt (EIP-1153 reentrancy guard)  
+✅ ERC20-only versions of all Base functions  
+✅ _approveAsset()  
+✅ _unglueAsset()  
 ✅ Smaller bytecode (no NFT support)  
 ✅ receive() for ETH  
 ✅ Perfect for ERC20-only bots
 
-### **GluedToolsERC20** (279 lines) = GluedToolsERC20Min +
-✅ Everything from GluedToolsERC20Min  
-✅ All advanced features from GluedTools  
-✅ ERC20-optimized implementations  
-✅ Smaller than GluedTools
+### **GluedToolsERC20** (137 lines) = GluedToolsERC20Base +
+✅ Everything from GluedToolsERC20Base  
+✅ _batchTransferAsset()  
+✅ _handleExcess()
 
 ### **StickyAsset** = All of the above +
 ✅ Automatic glue creation  
@@ -890,7 +893,7 @@ contract MyRouter is GluedToolsMin {
 ✅ Initialize() instead of constructor  
 ✅ Factory pattern support
 
-### **GluedLoanReceiver** = GluedToolsERC20Min +
+### **GluedLoanReceiver** = GluedToolsERC20Base +
 ✅ Automatic flash loan handling  
 ✅ Multi-glue support  
 ✅ Auto-repayment  
@@ -909,10 +912,10 @@ contract MyRouter is GluedToolsMin {
 ### **Building Applications?**
 | Your Need | Use This |
 |-----------|----------|
-| Minimal ERC20/NFT integration | `GluedToolsMin` |
-| Minimal ERC20-only | `GluedToolsERC20Min` |
-| Advanced ERC20/NFT features | `GluedTools` |
-| Advanced ERC20-only | `GluedToolsERC20` |
+| ERC20 + NFT integration | `GluedToolsBase` |
+| ERC20-only (smaller bytecode) | `GluedToolsERC20Base` |
+| Need batch operations (ERC20 + NFT) | `GluedTools` |
+| Need batch operations (ERC20-only) | `GluedToolsERC20` |
 
 ### **Flash Loans?**
 | Your Need | Use This |
@@ -965,13 +968,17 @@ contract MyContract is StickyAsset {
 ### **3. Choose the Right Base**
 
 ```solidity
-// ❌ DON'T (overkill for simple use case)
-import "@glue-finance/expansions-pack/base/GluedTools.sol";
-contract SimpleRouter is GluedTools { } // Imports GluedMath unnecessarily
+// ✅ For most use cases - GluedToolsBase has everything
+import "@glue-finance/expansions-pack/tools/GluedToolsBase.sol";
+contract MyContract is GluedToolsBase { } // Complete toolkit!
 
-// ✅ DO (minimal for simple needs)
-import "@glue-finance/expansions-pack/tools/GluedToolsMin.sol";
-contract SimpleRouter is GluedToolsMin { } // Just what you need!
+// ✅ For ERC20-only (smaller bytecode)
+import "@glue-finance/expansions-pack/tools/GluedToolsERC20Base.sol";
+contract MyERC20Contract is GluedToolsERC20Base { } // ERC20 optimized!
+
+// ✅ Only if you need batch operations
+import "@glue-finance/expansions-pack/base/GluedTools.sol";
+contract BatchRouter is GluedTools { } // Adds _batchTransferAsset
 ```
 
 ### **4. Never Modify GluedConstants**

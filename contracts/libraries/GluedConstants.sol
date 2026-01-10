@@ -45,13 +45,13 @@
  * Modifying these addresses constitutes a license violation and breaks protocol compatibility.
  * 
  * 📦 **Used By:**
- * - GluedToolsMin
- * - GluedToolsERC20Min
- * - StickyAsset (via GluedToolsMin)
- * - InitStickyAsset (via GluedToolsMin)
- * - GluedTools (via GluedToolsMin)
- * - GluedToolsERC20 (via GluedToolsERC20Min)
- * - GluedLoanReceiver
+ * - GluedToolsBase
+ * - GluedToolsERC20Base
+ * - StickyAsset (via GluedToolsBase)
+ * - InitStickyAsset (via GluedToolsBase)
+ * - GluedTools (via GluedToolsBase)
+ * - GluedToolsERC20 (via GluedToolsERC20Base)
+ * - GluedLoanReceiver (via GluedToolsERC20Base)
  */
 
 pragma solidity ^0.8.28;

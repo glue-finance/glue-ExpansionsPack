@@ -37,14 +37,17 @@ pragma solidity ^0.8.28;
 import {IGluedLoanReceiver} from '../interfaces/IGluedLoanReceiver.sol';
 
 /**
-@dev Library providing high-precision mathematical operations and utilities
+@dev Interfaces for Glue Protocol (used for flash loan requests)
 */
-import {GluedMath} from '../libraries/GluedMath.sol';
+import {IGlueStickERC20, IGlueERC20} from '../interfaces/IGlueERC20.sol';
+import {IGlueStickERC721} from '../interfaces/IGlueERC721.sol';
 
 /**
-@dev Minimal Glue Protocol helper tools for ERC20 operations (includes GluedConstants)
+@dev Complete Glue Protocol helper tools for ERC20 operations
+@dev Provides utility functions for transfers, balance tracking, glue interactions, and GluedMath
+@dev Includes nnrtnt reentrancy guard, _md512, _md512Up, _adjustDecimals and all helper functions
 */
-import {GluedToolsERC20Min} from '../tools/GluedToolsERC20Min.sol';
+import {GluedToolsERC20Base} from '../tools/GluedToolsERC20Base.sol';
 
 /**
  * @title Glued Loan Receiver Base Contract
@@ -53,7 +56,7 @@ import {GluedToolsERC20Min} from '../tools/GluedToolsERC20Min.sol';
  * @dev This provides core flash loan management functionality that can be used
  * by any contract wanting to receive flash loans from the Glue Protocol with minimal overhead
  */
-abstract contract GluedLoanReceiver is IGluedLoanReceiver, GluedToolsERC20Min {
+abstract contract GluedLoanReceiver is IGluedLoanReceiver, GluedToolsERC20Base {
 
 /**
 --------------------------------------------------------------------------------------------------------
@@ -65,13 +68,11 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver, GluedToolsERC20Min {
 01110101 01110000 
 */
 
-    // GluedMath for calculations
-    using GluedMath for uint256;
-
     // █████╗ Flash Loan State
     // ╚════╝ State variables to track current flash loan execution
-    // Constants (PRECISION, ETH_ADDRESS, GLUE_STICK addresses) inherited from GluedToolsERC20Min -> GluedConstants
-    // Helper functions (_transferAsset, _balanceOfAsset, _initializeGlue, etc.) inherited from GluedToolsERC20Min
+    // Constants (PRECISION, ETH_ADDRESS, GLUE_STICK addresses) inherited from GluedToolsERC20Base -> GluedConstants
+    // Math functions (_md512, _md512Up, _adjustDecimals) inherited from GluedToolsERC20Base
+    // Helper functions (_transferAsset, _balanceOfAsset, _initializeGlue, etc.) inherited from GluedToolsERC20Base
 
     /// @notice Array of glue contracts involved in the current flash loan
     address[] internal _currentGlues;
@@ -121,7 +122,7 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver, GluedToolsERC20Min {
         _flashLoanActive = true;
 
         // Calculate total borrowed amount by checking actual balance received
-        // Use _balanceOfAsset from GluedToolsERC20Min
+        // Use _balanceOfAsset from GluedToolsERC20Base
         _currentTotalBorrowed = _balanceOfAsset(collateral, address(this));
 
         // Execute custom logic (implemented by derived contracts)
@@ -219,12 +220,12 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver, GluedToolsERC20Min {
     /**
     * @notice Internal function to repay the flash loan to all glue contracts
     * @dev Automatically handles repayment to all glue contracts involved in the loan
-    * @dev Uses _transferAsset from GluedToolsERC20Min for safe ETH and ERC20 transfers
+    * @dev Uses _transferAsset from GluedToolsERC20Base for safe ETH and ERC20 transfers
     * @return success True if all repayments were successful
     */
     function _repayFlashLoan() internal returns (bool success) {
         
-        // Repay each glue contract using _transferAsset from GluedToolsERC20Min
+        // Repay each glue contract using _transferAsset from GluedToolsERC20Base
         // This handles both ETH and ERC20 with proper SafeERC20 and Address.sendValue
         for (uint256 i = 0; i < _currentGlues.length; i++) {
             address glue = _currentGlues[i];
@@ -256,6 +257,8 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver, GluedToolsERC20Min {
     * @param params Arbitrary data passed from the flash loan initiator
     * @return success True if your logic executed successfully
     *
+    * Note: _md512, _md512Up, _adjustDecimals are inherited from GluedToolsERC20Base
+    *
     * Use cases:
     * - Arbitrage operations
     * - Liquidations
@@ -267,61 +270,6 @@ abstract contract GluedLoanReceiver is IGluedLoanReceiver, GluedToolsERC20Min {
         // Derived contracts MUST override this function
         params; // Silence unused parameter warning
         return true;
-    }
-
-    /**
-    * @notice Performs a multiply-divide operation with full precision.
-    * @dev Calculates floor(a * b / denominator) with full precision, using 512-bit intermediate values.
-    * Throws if the result overflows a uint256 or if the denominator is zero.
-    *
-    * @param a The multiplicand.
-    * @param b The multiplier.
-    * @param denominator The divisor.
-    * @return result The result of the operation.
-    *
-    * Use case: When you need to calculate the result of a multiply-divide operation with full precision.
-    */
-    function _md512(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
-
-        // Return the result of the operation
-        return GluedMath.md512(a, b, denominator);
-    }
-
-    /**
-    * @notice Performs a multiply-divide operation with full precision and rounding up.
-    * @dev Calculates ceil(a * b / denominator) with full precision, using 512-bit intermediate values.
-    * Throws if the result overflows a uint256 or if the denominator is zero.
-    *
-    * @param a The multiplicand.
-    * @param b The multiplier.
-    * @param denominator The divisor.
-    * @return result The result of the operation, rounded up to the nearest integer.
-    *
-    * Use case: When you need to calculate the result of a multiply-divide operation with full precision and rounding up.
-    */
-    function _md512Up(uint256 a, uint256 b, uint256 denominator) internal pure returns (uint256 result) {
-
-        // Return the result of the operation rounding up
-        return GluedMath.md512Up(a, b, denominator);
-    }
-
-    /**
-    * @notice Adjusts decimal places between different token decimals. With this function,
-    * you can get the right ammount of tokenOut from a given tokenIn address and amount
-    * espressed in tokenIn's decimals.
-    * @dev If one of the tokens is ETH, you can use the address(0) as the token address.
-    *
-    * @param amount The amount to adjust
-    * @param tokenIn The address of the input token
-    * @param tokenOut The address of the output token
-    * @return adjustedAmount The adjusted amount with correct decimal places
-    *
-    * Use case: When you need to adjust the decimal places operating with two different tokens
-    */
-    function _adjustDecimals(uint256 amount,address tokenIn,address tokenOut) internal view returns (uint256 adjustedAmount) {
-
-        // Return the adjusted amount
-        return GluedMath.adjustDecimals(amount, tokenIn, tokenOut);
     }
 
 /**

@@ -89,8 +89,8 @@ contract ArbitrageBot is GluedLoanReceiver {
 ### **Building on Glue**
 | Contract | Purpose | Size |
 |----------|---------|------|
-| `GluedToolsMin` | Minimal helpers (ERC20 + ERC721) | 296 lines |
-| `GluedToolsERC20Min` | Minimal helpers (ERC20 only) | 244 lines |
+| `GluedToolsBase` | Complete base toolkit (ERC20 + ERC721) | 606 lines |
+| `GluedToolsERC20Base` | Complete base toolkit (ERC20 only) | 486 lines |
 | `GluedTools` | Full-featured (ERC20 + ERC721 + GluedMath) | 355 lines |
 | `GluedToolsERC20` | Full-featured (ERC20 only + GluedMath) | 279 lines |
 | `GluedLoanReceiver` | Flash loan receiver | 627 lines |
@@ -114,7 +114,7 @@ contract ArbitrageBot is GluedLoanReceiver {
 
 ## 🛠️ Helper Functions You Get
 
-### **From GluedToolsMin** (All sticky assets and tools inherit these)
+### **From GluedToolsBase** (Complete base - all sticky assets and tools inherit these)
 
 ```solidity
 // Safe transfers (handles tax tokens, ETH, ERC20, ERC721)
@@ -174,7 +174,7 @@ GluedConstants (86 lines)
   ├─ Common constants (PRECISION, ETH_ADDRESS, DEAD_ADDRESS)
   └─ Interface imports
         ↓
-GluedToolsMin (296L) / GluedToolsERC20Min (244L)
+GluedToolsBase (606L) / GluedToolsERC20Base (486L)
   ├─ Safe transfer functions
   ├─ Glue initialization
   └─ Balance helpers
@@ -346,11 +346,11 @@ import "@glue-finance/expansions-pack/base/InitStickyAsset.sol";
 
 // Building apps that interact with Glue (supports ERC20 + ERC721)
 import "@glue-finance/expansions-pack/base/GluedTools.sol";
-import "@glue-finance/expansions-pack/tools/GluedToolsMin.sol"; // Minimal version
+import "@glue-finance/expansions-pack/tools/GluedToolsBase.sol"; // Minimal version
 
 // Building apps (ERC20 only - better if you don't use NFTs)
 import "@glue-finance/expansions-pack/base/GluedToolsERC20.sol";
-import "@glue-finance/expansions-pack/tools/GluedToolsERC20Min.sol"; // Minimal version
+import "@glue-finance/expansions-pack/tools/GluedToolsERC20Base.sol"; // Minimal version
 
 // Flash loans
 import "@glue-finance/expansions-pack/base/GluedLoanReceiver.sol";
@@ -464,8 +464,8 @@ contracts/
 │   ├── GluedTools.sol           (Full helpers, ERC20 + ERC721)
 │   └── GluedToolsERC20.sol      (Full helpers, ERC20 only)
 ├── tools/
-│   ├── GluedToolsMin.sol        (Minimal helpers, ERC20 + ERC721)
-│   └── GluedToolsERC20Min.sol   (Minimal helpers, ERC20 only)
+│   ├── GluedToolsBase.sol        (Complete base toolkit, ERC20 + ERC721)
+│   └── GluedToolsERC20Base.sol   (Complete base toolkit, ERC20 only)
 ├── libraries/
 │   ├── GluedConstants.sol       (Protocol constants)
 │   └── GluedMath.sol            (High-precision math)

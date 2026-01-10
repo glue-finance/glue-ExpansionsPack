@@ -21,9 +21,9 @@ module.exports = {
   GluedMath: './contracts/libraries/GluedMath.sol',
   GluedConstants: './contracts/libraries/GluedConstants.sol',
   
-  // Tools (Minimal helpers)
-  GluedToolsMin: './contracts/tools/GluedToolsMin.sol',
-  GluedToolsERC20Min: './contracts/tools/GluedToolsERC20Min.sol',
+  // Tools (Base helpers with full functionality)
+  GluedToolsBase: './contracts/tools/GluedToolsBase.sol',
+  GluedToolsERC20Base: './contracts/tools/GluedToolsERC20Base.sol',
   
   // Example contracts
   BasicStickyToken: './contracts/examples/BasicStickyToken.sol',
