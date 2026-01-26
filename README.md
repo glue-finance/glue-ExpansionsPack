@@ -560,7 +560,7 @@ The first blueprint tackles the creator royalty problem. Unlike ERC-2981 (merely
 - 🔄 **transferFrom2** - New transfer primitive with native royalty enforcement
 - ✅ **Backward Compatible** - All standard ERC721 functions work normally
 
-📖 **[More →](https://github.com/glue-finance/ERC721G/tree/main)**
+📖 **[More →](https://github.com/lalilulel0x/ERC721G)**
 
 ---
 
