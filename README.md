@@ -544,6 +544,26 @@ See [V2_UPDATE.md](./doc/V2_UPDATE.md) for:
 
 ---
 
+## 🧬 Blueprints - Glue-Empowered Token Standards
+
+Blueprints are **next-generation token standards** that leverage Glue Protocol to solve fundamental problems in existing ERCs. These are ready-to-inherit contracts that give your tokens superpowers.
+
+### **ERC721G** - NFTs with Guaranteed Royalty Enforcement
+
+The first blueprint tackles the creator royalty problem. Unlike ERC-2981 (merely informational) or ERC721C (requires permissioned marketplace whitelisting), **ERC721G enforces royalties at the protocol level while remaining fully permissionless and backward compatible with ANY marketplace**.
+
+**Key Features:**
+- 🔒 **Enforced Royalties** - Royalty payment is a prerequisite for transferability
+- 🌐 **Permissionless** - Works with ANY marketplace, no whitelisting required
+- ⚡ **Deferred Payments** - Compatible with marketplace flows (pay after transfer)
+- 💰 **Dynamic Floor Price** - Derived from GLUE Protocol collateral oracle
+- 🔄 **transferFrom2** - New transfer primitive with native royalty enforcement
+- ✅ **Backward Compatible** - All standard ERC721 functions work normally
+
+📖 **[More →](https://github.com/glue-finance/ERC721G/tree/main)**
+
+---
+
 **Built with ❤️ by La-Li-Lu-Le-Lo (@lalilulel0z) and the Glue Finance Team**
 
 🚀 **Start building:** `npm install @glue-finance/expansions-pack`

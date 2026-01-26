@@ -21,6 +21,10 @@ module.exports = {
   GluedMath: './contracts/libraries/GluedMath.sol',
   GluedConstants: './contracts/libraries/GluedConstants.sol',
   
+  // Blueprint contracts (ready-to-use implementations)
+  ERC721G: './contracts/blueprints/ERC721G.sol',
+  IERC721G: './contracts/interfaces/IERC721G.sol',
+  
   // Tools (Base helpers with full functionality)
   GluedToolsBase: './contracts/tools/GluedToolsBase.sol',
   GluedToolsERC20Base: './contracts/tools/GluedToolsERC20Base.sol',
