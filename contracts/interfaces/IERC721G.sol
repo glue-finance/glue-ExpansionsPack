@@ -249,6 +249,13 @@ interface IERC721G {
      * @return shares Array of BPS shares (parallel to receivers)
      */
     function getRoyaltyReceivers() external view returns (address[] memory receivers, uint256[] memory shares);
+    
+    /**
+     * @notice Check if an address is a royalty receiver
+     * @param account The address to check
+     * @return isReceiver True if the address is a royalty receiver (has BPS > 0)
+     */
+    function isRoyaltyReceiver(address account) external view returns (bool isReceiver);
 
     // ═══════════════════════════════════════════════════════════════════════════
     // VIEW FUNCTIONS - Token Locking Status

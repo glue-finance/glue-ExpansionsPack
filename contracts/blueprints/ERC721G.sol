@@ -728,7 +728,7 @@ abstract contract ERC721G is ERC721Enumerable, StickyAsset, IERC721G, IERC2981 {
 
 
 
-    // ═══════════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
 // ██╗    ██╗██████╗ ██╗████████╗███████╗
 // ██║    ██║██╔══██╗██║╚══██╔══╝██╔════╝
 // ██║ █╗ ██║██████╔╝██║   ██║   █████╗  
@@ -1284,6 +1284,16 @@ abstract contract ERC721G is ERC721Enumerable, StickyAsset, IERC721G, IERC2981 {
             receivers[i] = _royaltyReceivers[i];
             shares[i] = _receiverSharesBps[_royaltyReceivers[i]];
         }
+    }
+
+    /**
+     * @notice Check if an address is a royalty receiver
+     * @dev Returns true if the address has a BPS share greater than 0
+     * @param account The address to check
+     * @return isReceiver True if the address is a royalty receiver
+     */
+    function isRoyaltyReceiver(address account) external view virtual returns (bool isReceiver) {
+        return _receiverSharesBps[account] > 0;
     }
 
     // ============================================
