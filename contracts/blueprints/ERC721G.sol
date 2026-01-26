@@ -1292,7 +1292,7 @@ abstract contract ERC721G is ERC721Enumerable, StickyAsset, IERC721G, IERC2981 {
      * @param account The address to check
      * @return isReceiver True if the address is a royalty receiver
      */
-    function isRoyaltyReceiver(address account) external view virtual returns (bool isReceiver) {
+    function isRoyaltyReceiver(address account) public view virtual returns (bool isReceiver) {
         return _receiverSharesBps[account] > 0;
     }
 
